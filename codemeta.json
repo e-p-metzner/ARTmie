@@ -1,0 +1,54 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "type": "SoftwareSourceCode",
+    "applicationCategory": "Meteorology, Atmospheric Science, Optics",
+    "author": [
+        {
+            "id": "http://orcid.org/0000-0001-6523-9205",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "Karlsruhe Institute of Technology KIT, Germany"
+            },
+            "email": "enrico.metzner@kit.edu",
+            "familyName": "Metzner",
+            "givenName": "Enrico"
+        }
+    ],
+    "contributor": {
+        "id": "http://orcid.org/0000-0001-6523-9205",
+        "type": "Person",
+        "affiliation": {
+            "type": "Organization",
+            "name": "Karlsruhe Institute of Technology KIT, Germany"
+        },
+        "email": "enrico.metzner@kit.edu",
+        "familyName": "Metzner",
+        "givenName": "Enrico"
+    },
+    "dateCreated": "2025-03-01",
+    "dateModified": "2025-04-10",
+    "datePublished": "2025-04-10",
+    "description": "a fast python package for mie scattering and backscattering calculations of single particles, coated particles and log-normal distributed particles",
+    "keywords": [
+        "Python",
+        "Mie",
+        "scattering",
+        "backscattering",
+        "extinction",
+        "absorption",
+        "size distribution",
+        "spheres"
+    ],
+    "license": "https://spdx.org/licenses/BSD-3-Clause",
+    "name": "ARTmie",
+    "operatingSystem": [
+        "Linux",
+        "Windows",
+        "macOS"
+    ],
+    "programmingLanguage": "Python 3",
+    "softwareRequirements": "https://numpy.org/doc/2.0/index.html",
+    "version": "0.1.0",
+    "developmentStatus": "active"
+}

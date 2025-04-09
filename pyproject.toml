@@ -1,0 +1,28 @@
+[build-system]
+requires = [
+  "setuptools>=61.0",
+  "numpy>=1.15",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ARTmie"
+version = "0.1.0"
+dependencies = [
+  "numpy>=1.15",
+]
+requires-python = ">=3.4"
+authors = [
+  {name = "Enrico P. Metzner", email = "enrico.metzner@kit.edu"},
+]
+description = "Fast Mie calculation lib with C++ backend"
+#readme = "README.rst"
+readme = "README.md"
+license = {file = "LICENSE"}
+#license = "BSD-3-Clause"
+#license-files = [ "LICENSE" ]
+keywords = ["Mie", "extinction", "scattering", "backscattering"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3"
+]
