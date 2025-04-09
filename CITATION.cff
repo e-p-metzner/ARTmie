@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: If you use this software, please cite the paper describing it as below. Specific
+  versions of the software can additionally be referenced using individual DOIs.
+type: software
+title: ARTmie
+abstract: a fast python package for mie scattering and backscattering calculations
+  of single particles, coated particles and log-normal distributed particles
+version: 0.1.0
+date-released: 2025-04-10
+authors:
+- given-names: Enrico
+  family-names: Metzner
+license: BSD-3-Clause
