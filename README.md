@@ -27,7 +27,7 @@ pip install ARTmie
 4) Change to the directory of the ARTmie project (dir above src):<br>
 ```
 cd /path/to/ARTmie
-```<br>
+```
 5) Install it with the following command:<br>
 ```python
 python -m pip install .
