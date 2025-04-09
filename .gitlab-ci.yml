@@ -1,0 +1,44 @@
+stages:
+- build
+
+variables:
+  PROJECT_NAME: ARTmie
+
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_DRIVER: overlay
+  GIT_STRATEGY: clone
+  GIT_DEPTH: 1
+
+  # Variables for metadata generation that will be used by the script `create_cff`
+  CREATORS_LOCATIONS: codemeta.json
+  CODEMETA_LOCATION: codemeta.json
+  # Location where the CFF file will be generated
+  CFF_PATH: CITATION.cff
+
+  # Variables for Datacite
+  DATACITE_PATH: ${PROJECT_NAME}.xml
+  DATACITE_RELEASE: ${PROJECT_NAME}-${CI_COMMIT_TAG}.xml
+  DATACITE_REGISTRY_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PROJECT_NAME}-datacite/${CI_COMMIT_TAG}
+
+  # Variables for releases
+  RADAR_PATH: ${PROJECT_NAME}-${CI_COMMIT_TAG}
+  RADAR_BACKLINK: ${CI_PROJECT_URL}/-/releases
+  SMTP_SERVER: smarthost.kit.edu
+  NOTIFICATION_EMAIL: info@openCARP.org
+  RELEASE_TAG: ${CI_COMMIT_TAG}
+  RELEASE_API_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases
+  RELEASE_ARCHIVE_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/archive.tar.gz?sha=${CI_COMMIT_TAG}
+  RELEASE_DESCRIPTION: |
+    Find the changelog [here](${CI_PROJECT_URL}/blob/master/CHANGELOG.md).
+
+include:
+- local: .gitlab/ci/cff.gitlab-ci.yml
+- local: .gitlab/ci/datacite.gitlab-ci.yml
+- local: .gitlab/ci/release.gitlab-ci.yml
+- local: .gitlab/ci/radar.gitlab-ci.yml
+
+# This configuration must be used if you have runners with other executors than docker available (for example shell runners)
+# To force the jobs to be picked up by docker runners, use the tag associated to the docker runners (usually "docker"):
+# default:
+#   tags:
+#     - docker
