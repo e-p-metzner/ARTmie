@@ -2186,34 +2186,34 @@ void size_distribution_phase_function(std::complex<double> m_core, double mean_d
     int is_coated = (fcoating>EPS) && (m_core!=m_shell);
 
     for(a=0; a<nang; a++) {
-    	outSL[a] = 0.0;
-    	outSR[a] = 0.0;
-    	outSU[a] = 0.0;
+        outSL[a] = 0.0;
+        outSR[a] = 0.0;
+        outSU[a] = 0.0;
     }
 
     for(idx=0; idx<dcount; idx++) {
-		double xval = _PI_*core_diams[idx]/wavelength;
-		double yval = _PI_*shell_diams[idx]/wavelength;
-		int anbn_used_len = calc_nmax(yval);
-		if (is_coated) {
-			miecoated_ab(m_core, xval, m_shell, yval, an, bn);
-		} else {
-			mie_ab(m_core, yval, an, bn);
-		}
+        double xval = _PI_*core_diams[idx]/wavelength;
+        double yval = _PI_*shell_diams[idx]/wavelength;
+        int anbn_used_len = calc_nmax(yval);
+        if (is_coated) {
+            miecoated_ab(m_core, xval, m_shell, yval, an, bn);
+        } else {
+            mie_ab(m_core, yval, an, bn);
+        }
 
-		scattering_function(anbn_used_len, an, bn, nang, outTheta, nmax, pin, taun, sl, sr, su);
+        scattering_function(anbn_used_len, an, bn, nang, outTheta, nmax, pin, taun, sl, sr, su);
 
-		for(a=0; a<nang; a++) {
-			outSL[a] += sl[a]*crossArea[idx];
-			outSR[a] += sr[a]*crossArea[idx];
-			outSU[a] += su[a]*crossArea[idx];
-		}
+        for(a=0; a<nang; a++) {
+            outSL[a] += sl[a]*crossArea[idx];
+            outSR[a] += sr[a]*crossArea[idx];
+            outSU[a] += su[a]*crossArea[idx];
+        }
     }
 
     for(a=0; a<nang; a++) {
-    	outSL[a] *= normWeight;
-    	outSR[a] *= normWeight;
-    	outSU[a] *= normWeight;
+        outSL[a] *= normWeight;
+        outSR[a] *= normWeight;
+        outSU[a] *= normWeight;
     }
 
     delete[] pin;
@@ -2236,32 +2236,32 @@ PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
     int valueN2core = true;
     int valueAsCrossSec = false;
     PyObject *res = NULL;
-	//    int array_sizepar = 0;
+    //    int array_sizepar = 0;
 
-	if(PyArg_ParseTupleAndKeywords(args, kwds, "Dddd|ddDddpp", kwlist, &valueNpMcore, &valueDmu, &valueDstd, &valueW, &valueNmedium, &valueFcoat, &valueNpMshell, &valueDens, &valueRes, &valueN2core, &valueAsCrossSec)) {
-		std::complex<double> valueMcore  = py2c_cplx(valueNpMcore);
-		std::complex<double> valueMshell = py2c_cplx(valueNpMshell);
-		if(std::isnan(valueNpMshell.real) || std::isnan(valueNpMshell.imag)) {
-			valueMshell = py2c_cplx(valueNpMcore);
-		}
-	    double angres = 0.25; //degrees
-		int nang = calc_angles_count(angres);
-		double theta[nang];
-		double pf_sl[nang];
-		double pf_sr[nang];
-		double pf_su[nang];
-		double ares = angres*_PI_/180.0;
-		for(int a=0; a<nang; a++) {
-			theta[a] = a*ares;
-		}
-		size_distribution_phase_function(valueMcore, valueDmu, valueDstd, valueW, valueMshell, valueFcoat, valueRes, valueDens, valueN2core, valueAsCrossSec, nang, theta, pf_sl, pf_sr, pf_su);
-		res = Py_BuildValue("OOOO",
-				c2py_dblarr(nang, theta),
-				c2py_dblarr(nang, pf_sl),
-				c2py_dblarr(nang, pf_sr),
-				c2py_dblarr(nang, pf_su)
-			);
-	} else {
+    if(PyArg_ParseTupleAndKeywords(args, kwds, "Dddd|ddDddpp", kwlist, &valueNpMcore, &valueDmu, &valueDstd, &valueW, &valueNmedium, &valueFcoat, &valueNpMshell, &valueDens, &valueRes, &valueN2core, &valueAsCrossSec)) {
+        std::complex<double> valueMcore  = py2c_cplx(valueNpMcore);
+        std::complex<double> valueMshell = py2c_cplx(valueNpMshell);
+        if(std::isnan(valueNpMshell.real) || std::isnan(valueNpMshell.imag)) {
+            valueMshell = py2c_cplx(valueNpMcore);
+        }
+        double angres = 0.25; //degrees
+        int nang = calc_angles_count(angres);
+        double theta[nang];
+        double pf_sl[nang];
+        double pf_sr[nang];
+        double pf_su[nang];
+        double ares = angres*_PI_/180.0;
+        for(int a=0; a<nang; a++) {
+            theta[a] = a*ares;
+        }
+        size_distribution_phase_function(valueMcore, valueDmu, valueDstd, valueW, valueMshell, valueFcoat, valueRes, valueDens, valueN2core, valueAsCrossSec, nang, theta, pf_sl, pf_sr, pf_su);
+        res = Py_BuildValue("OOOO",
+                c2py_dblarr(nang, theta),
+                c2py_dblarr(nang, pf_sl),
+                c2py_dblarr(nang, pf_sr),
+                c2py_dblarr(nang, pf_su)
+            );
+    } else {
 //        array_sizepar = 1;
 //        PyErr_Clear();
 	}
@@ -2339,7 +2339,7 @@ PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
 //    delete[] mie_tots.abs_arr;
 //    delete[] mie_tots.bck_arr;
 //    delete[] mie_tots.g_arr;
-	return res;
+    return res;
 }
 
 
