@@ -1245,7 +1245,6 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
         PyArray_Dims outShp = { nullptr, 0 };
         outShp.ptr = shapeM;
         outShp.len = ndimM;
-        PyObject* pytemp    = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
         PyObject* pyext_arr = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
         PyObject* pysca_arr = PyArray_Newshape(c2py_dblarr(a_len, bsca), &outShp, NPY_CORDER);
         PyObject* pyabs_arr = PyArray_Newshape(c2py_dblarr(a_len, babs), &outShp, NPY_CORDER);
@@ -1445,7 +1444,6 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
         PyArray_Dims outShp = { nullptr, 0 };
         outShp.ptr = shapeMc;
         outShp.len = ndimMc;
-        PyObject* pytemp    = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
         PyObject* pyext_arr = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
         PyObject* pysca_arr = PyArray_Newshape(c2py_dblarr(a_len, bsca), &outShp, NPY_CORDER);
         PyObject* pyabs_arr = PyArray_Newshape(c2py_dblarr(a_len, babs), &outShp, NPY_CORDER);
@@ -1947,8 +1945,6 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
 
     double maxy = _PI_*max_shell_diam/wavelength;
     int nmax = calc_nmax(maxy);
-    std::complex<double> maxmy = m_core*maxy;
-    //PySys_WriteStdout("%12.6f+i*%12.6f\n",maxmy.real(),maxmy.imag());
     int arr_len = nang*nmax;
     double *pin = new double[arr_len];
     double *taun = new double[arr_len];
@@ -2179,7 +2175,7 @@ void size_distribution_phase_function(std::complex<double> m_core, double mean_d
     int arr_len = nang*nmax;
     double *pin = new double[arr_len];
     double *taun = new double[arr_len];
-    mie_pitau(nang, ouTheta, nmax, pin, taun);
+    mie_pitau(nang, outTheta, nmax, pin, taun);
     std::complex<double> *an = new std::complex<double>[nmax];
     std::complex<double> *bn = new std::complex<double>[nmax];
 
