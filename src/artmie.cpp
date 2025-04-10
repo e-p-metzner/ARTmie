@@ -1908,8 +1908,7 @@ struct Mie_tots {
 };
 
 //, nephscats=False, nephsensfile=\"\", cut=None, vectorout=False)\n\n
-#define sdo_docstring "Size_Distribution_Optics(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, \
-resolution=10, effcore=True, normalized=True)\n\n\
+#define sdo_docstring "Size_Distribution_Optics(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=True)\n\n\
 Parameters\n----------\n\
 mp : scalar, complex number\n    complex refractive index of the particle (core)\n\
 sizepar1 : scalar or 1dimensional array, floating point number(s)\n    mean count diameter (if scalar) or particle sizes (if array) in nanometers\n\
@@ -1921,7 +1920,9 @@ mc : scalar, complex number, optional\n    complex refractive index of the coati
 density : scalar, floating point number, optional\n    mean density of the whole particle in g/cm3, default 1.0\n\
 resolution : scalar, floating point number, optional\n    number of bins of the particle size distribution, default 10, ignored when sizepar1 & sizepar2 array-like\n\n\
 Returns\n-------\n\
-mie_tots : dictionary\n    contains the Mie efficiencies of a particle size distribution \"Extinction\", \"Scattering\", \"Absorption\", the \"Asymmetrie\" parameter and the \"Backscattering\" efficiency specifically calculated from a weighted average over all scattering angles\n    it also contains the Mie efficiencies for every used particle size from the particle size distribution"
+mie_tots : dictionary\n    contains the Mie efficiencies of a particle size distribution \"Extinction\", \"Scattering\", \"Absorption\", the \"Asymmetrie\" parameter and the \"Backscattering\" efficiency specifically calculated from a weighted average over all scattering angles\n    it also contains the Mie efficiencies for every used particle size from the particle size distribution\n\n\
+Important Note\n--------------\n\
+1dimensional arguments for sizepar1 and sizepar2 are not implemented yet, they will come in version 0.2.0"
 void size_distribution_optics(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, Mie_tots *mie_tots) {
     double res = 1.0/resolution;
     int dcount = calc_diam_count(mean_diam, stdev_diam, res);
@@ -2022,7 +2023,7 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     delete[] an;
     delete[] bn;
 }
-PyObject* mie_art_sizedistops(PyObject *self, PyObject *args, PyObject *kwds) {
+PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"mp", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", NULL };
 
     Py_complex valueNpMcore;
@@ -2134,6 +2135,213 @@ PyObject* mie_art_sizedistops(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 
+#define sdpf_docstring "Size_Distribution_Phase_Function(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=True)\n\n\
+Parameters\n----------\n\
+mp : scalar, complex number\n    complex refractive index of the particle (core)\n\
+sizepar1 : scalar or 1dimensional array, floating point number(s)\n    mean count diameter (if scalar) or particle sizes (if array) in nanometers\n\
+sizepar2 : scalar or 1dimensional array, floating point number(s)\n    geometric std. dev. (if scalar) or dNdlogD in cm$^{-3}$ (if array)\n\
+wavelength : scalar, floating point number\n    wavelength of the incident light in nanometers\n\
+nMedium : scalar, floating point number, optional\n    refractive index without extinction for the surrounding medium, default 1.0\n\
+fcoat : scalar, floating point number, optional\n    coating fraction, ratio of shell thickness to core radius, default 0.0\n\
+mc : scalar, complex number, optional\n    complex refractive index of the coating, default mc\n\
+density : scalar, floating point number, optional\n    mean density of the whole particle in g/cm3, default 1.0\n\
+resolution : scalar, floating point number, optional\n    number of bins of the particle size distribution, default 10, ignored when sizepar1 & sizepar2 array-like\n\n\
+Returns\n-------\n\
+theta : array-like, 1dimensional, floating point numbers\n    scattering angles in radians\n\
+sl : array-like, 1dimensional, floating point numbers\n    scattering intensities of parallel polarized light\n\
+sr : array-like, 1dimensional, floating point numbers\n    scattering intensities of perpendicular polarized light\n\
+su : array-like, 1dimensional, floating point numbers\n    scattering intensities of unpolarized light\n\n\
+Important Note\n--------------\n\
+1dimensional arguments for sizepar1 and sizepar2 are not implemented yet, they will come in version 0.2.0"
+void size_distribution_phase_function(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, int nang, double *outTheta, double *outSL, double *outSR, double *outSU) {
+    double res = 1.0/resolution;
+    int dcount = calc_diam_count(mean_diam, stdev_diam, res);
+    double core_diams[dcount];
+    double shell_diams[dcount];
+    double crossArea[dcount];
+    double normWeight;
+    createLogNormalDistribution(mean_diam, stdev_diam, fcoating, res, dens, effcore, norm2vol, core_diams, shell_diams, crossArea, &normWeight);
+    double max_shell_diam = 0.0;
+    int idx, a;
+    for(idx=0; idx<dcount; idx++) {
+        if(max_shell_diam < shell_diams[idx])
+            max_shell_diam = shell_diams[idx];
+    }
+
+    double sl[nang];
+    double sr[nang];
+    double su[nang];
+
+    double maxy = _PI_*max_shell_diam/wavelength;
+    int nmax = calc_nmax(maxy);
+    std::complex<double> maxmy = m_core*maxy;
+    //PySys_WriteStdout("%12.6f+i*%12.6f\n",maxmy.real(),maxmy.imag());
+    int arr_len = nang*nmax;
+    double *pin = new double[arr_len];
+    double *taun = new double[arr_len];
+    mie_pitau(nang, ouTheta, nmax, pin, taun);
+    std::complex<double> *an = new std::complex<double>[nmax];
+    std::complex<double> *bn = new std::complex<double>[nmax];
+
+    int is_coated = (fcoating>EPS) && (m_core!=m_shell);
+
+    for(a=0; a<nang; a++) {
+    	outSL[a] = 0.0;
+    	outSR[a] = 0.0;
+    	outSU[a] = 0.0;
+    }
+
+    for(idx=0; idx<dcount; idx++) {
+		double xval = _PI_*core_diams[idx]/wavelength;
+		double yval = _PI_*shell_diams[idx]/wavelength;
+		int anbn_used_len = calc_nmax(yval);
+		if (is_coated) {
+			miecoated_ab(m_core, xval, m_shell, yval, an, bn);
+		} else {
+			mie_ab(m_core, yval, an, bn);
+		}
+
+		scattering_function(anbn_used_len, an, bn, nang, outTheta, nmax, pin, taun, sl, sr, su);
+
+		for(a=0; a<nang; a++) {
+			outSL[a] += sl[a]*crossArea[idx];
+			outSR[a] += sr[a]*crossArea[idx];
+			outSU[a] += su[a]*crossArea[idx];
+		}
+    }
+
+    for(a=0; a<nang; a++) {
+    	outSL[a] *= normWeight;
+    	outSR[a] *= normWeight;
+    	outSU[a] *= normWeight;
+    }
+
+    delete[] pin;
+    delete[] taun;
+    delete[] an;
+    delete[] bn;
+}
+PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
+    static char *kwlist[] = { (char*)"mp", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", NULL };
+
+    Py_complex valueNpMcore;
+    Py_complex valueNpMshell = nanPyCplx();
+    double valueDmu;
+    double valueDstd;
+    double valueW;
+    double valueNmedium;
+    double valueFcoat;
+    double valueDens = 1.0;
+    double valueRes = 10.0;
+    int valueN2core = true;
+    int valueAsCrossSec = false;
+    PyObject *res = NULL;
+	//    int array_sizepar = 0;
+
+	if(PyArg_ParseTupleAndKeywords(args, kwds, "Dddd|ddDddpp", kwlist, &valueNpMcore, &valueDmu, &valueDstd, &valueW, &valueNmedium, &valueFcoat, &valueNpMshell, &valueDens, &valueRes, &valueN2core, &valueAsCrossSec)) {
+		std::complex<double> valueMcore  = py2c_cplx(valueNpMcore);
+		std::complex<double> valueMshell = py2c_cplx(valueNpMshell);
+		if(std::isnan(valueNpMshell.real) || std::isnan(valueNpMshell.imag)) {
+			valueMshell = py2c_cplx(valueNpMcore);
+		}
+	    double angres = 0.25; //degrees
+		int nang = calc_angles_count(angres);
+		double theta[nang];
+		double pf_sl[nang];
+		double pf_sr[nang];
+		double pf_su[nang];
+		double ares = angres*_PI_/180.0;
+		for(int a=0; a<nang; a++) {
+			theta[a] = a*ares;
+		}
+		size_distribution_phase_function(valueMcore, valueDmu, valueDstd, valueW, valueMshell, valueFcoat, valueRes, valueDens, valueN2core, valueAsCrossSec, nang, theta, pf_sl, pf_sr, pf_su);
+		res = Py_BuildValue("OOOO",
+				c2py_dblarr(nang, theta),
+				c2py_dblarr(nang, pf_sl),
+				c2py_dblarr(nang, pf_sr),
+				c2py_dblarr(nang, pf_su)
+			);
+	} else {
+//        array_sizepar = 1;
+//        PyErr_Clear();
+	}
+
+//    if(array_sizepar) {
+//        PyObject *arr_ptr[] = { NULL, NULL };
+//        PyObject *array[] =   { NULL, NULL };
+//        int dtype = -1;
+//        if(PyArg_ParseTupleAndKeywords(args, kwds, "DOOd|ddDddpp", kwlist, &valueNpMcore, &arr_ptr[0], &arr_ptr[1], &valueW, &valueNmedium, &valueFcoat, &valueNpMshell, &valueDens, &valueRes, &valueN2core, &valueAsCrossSec)) {
+//            {
+//                if(parse_arrays(2, NPY_FLOAT, arr_ptr, array)) dtype = NPY_FLOAT;
+//            }
+//            if(dtype<0) {
+//                if(parse_arrays(2, NPY_DOUBLE, arr_ptr, array)) dtype = NPY_DOUBLE;
+//            }
+//        } else {
+//            PyErr_Clear();
+//        }
+//
+//        int ndim1 = PyArray_NDIM((PyArrayObject *)array[0]);
+//        int ndim2 = PyArray_NDIM((PyArrayObject *)array[1]);
+//        if(ndim1!=1 || ndim2!=1) {
+//            PyErr_SetString(
+//                PyExc_TypeError,
+//                "sizepar1 and sizepar2 have to be both 1dimensional arrays of type float[] or double[]"
+//            );
+//            Py_XDECREF(array[0]);
+//            Py_XDECREF(array[1]);
+//            return NULL;
+//        }
+//        int size1 = PyArray_SIZE((PyArrayObject *)array[0]);
+//        int size2 = PyArray_SIZE((PyArrayObject *)array[1]);
+//        if(size1!=size2) {
+//            PyErr_SetString(
+//                PyExc_IndexError,
+//                "sizepar1 and sizepar2 have to be arrays of the same length"
+//            );
+//            Py_XDECREF(array[0]);
+//            Py_XDECREF(array[1]);
+//            return NULL;
+//        }
+//
+////        std::complex<double> valueMcore  = py2c_cplx(valueNpMcore);
+////        std::complex<double> valueMshell = py2c_cplx(valueNpMshell);
+////        if(std::isnan(valueNpMshell.real) || std::isnan(valueNpMshell.imag)) {
+////            valueMshell = py2c_cplx(valueNpMcore);
+////        }
+//
+//        PyErr_SetString(
+//            PyExc_NotImplementedError,
+//            "array-like input for sizepar1 and sizepar2 not implemented yet."
+//        );
+//        Py_XDECREF(array[0]);
+//        Py_XDECREF(array[1]);
+//        return NULL;
+//    }
+
+//    PyObject *res = Py_BuildValue("{s:d,s:d,s:d,s:d,s:d,s:d,s:O,s:O,s:O,s:O,s:O}",
+//        "Extinction", mie_tots.bext,
+//        "Scattering", mie_tots.bsca,
+//        "Absorption", mie_tots.babs,
+//        "Backscattering", mie_tots.bback,
+//        "SSA", mie_tots.bssa,
+//        "Asymmetry", mie_tots.basym,
+//        "Extinction Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.ext_arr),
+//        "Scattering Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.sca_arr),
+//        "Absorption Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.abs_arr),
+//        "Backscattering Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.bck_arr),
+//        "Asymmetry Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.g_arr)
+//    );
+
+
+//    delete[] mie_tots.ext_arr;
+//    delete[] mie_tots.sca_arr;
+//    delete[] mie_tots.abs_arr;
+//    delete[] mie_tots.bck_arr;
+//    delete[] mie_tots.g_arr;
+	return res;
+}
+
 
 
 
@@ -2157,9 +2365,10 @@ PyMethodDef mie_methods[] = {
     {"ab2mie",           (PyCFunction)(void(*)(void))mie_art_ab2mie,        METH_VARARGS|METH_KEYWORDS, abtomie_docstring},
     {"ScatteringFunction", (PyCFunction)(void(*)(void))mie_art_scatfunc,    METH_VARARGS|METH_KEYWORDS, scatfunc_docstring},
 
-    {"createLogNormalDistribution", (PyCFunction)(void(*)(void))mie_art_createLgNormDist, METH_VARARGS|METH_KEYWORDS, clnd_docstring},
-    {"calcBackscattering",          (PyCFunction)(void(*)(void))mie_art_calcBackScat,     METH_VARARGS|METH_KEYWORDS, cbs_docstring},
-    {"Size_Distribution_Optics",    (PyCFunction)(void(*)(void))mie_art_sizedistops,      METH_VARARGS|METH_KEYWORDS, sdo_docstring},
+    {"createLogNormalDistribution",      (PyCFunction)(void(*)(void))mie_art_createLgNormDist, METH_VARARGS|METH_KEYWORDS, clnd_docstring},
+    {"calcBackscattering",               (PyCFunction)(void(*)(void))mie_art_calcBackScat,     METH_VARARGS|METH_KEYWORDS, cbs_docstring},
+    {"Size_Distribution_Optics",         (PyCFunction)(void(*)(void))mie_art_sdo,              METH_VARARGS|METH_KEYWORDS, sdo_docstring},
+    {"Size_Distribution_Phase_Function", (PyCFunction)(void(*)(void))mie_art_sdpf,             METH_VARARGS|METH_KEYWORDS, sdpf_docstring},
 
     {NULL, NULL, 0, NULL} /* sentinel */
 };

@@ -57,3 +57,6 @@ Enrico P. Metzner
 for version 0.1.1:
  - write documentation
  - create test-script to validate the installation
+for version 0.2.0:
+ - 1dimensional arrays for input arguments sizepar1 & sizepar2 in Size_Distribution_Optics and Size_Distribution_Phase_Function
+ - Size_Distribution_Phase_Function can also take an array of angles (theta) instead of predefined 720 angles with resolution of 0.25°
