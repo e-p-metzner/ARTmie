@@ -224,13 +224,13 @@ PyObject* mie_art_gamma(PyObject *self, PyObject *args, PyObject *kwds) {
 // **** Bessel functions
 
 #define bj_docstring "besselj(v, z, /, es=False)\n\n\
-Calculates the bessel function of the first kind\n\n\
+Calculates the Bessel function of the first kind\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the bessel function\n\
-z : scalar, complex number\n    the argument/location, where the bessel function has to be evaluated\n\
+v : scalar, floating point number\n    order of the Bessel function\n\
+z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the bessel function of the first kind and order v at complex value z"
+r : scalar, complex number\n    result of the Bessel function of the first kind and order v at complex value z"
 PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"v", (char*)"z", (char*)"es", (char*)"debug", NULL };
 
@@ -262,13 +262,13 @@ PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 #define by_docstring "bessely(v, z, /, es=False)\n\n\
-Calculates the bessel function of the second kind\n\n\
+Calculates the Bessel function of the second kind\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the bessel function\n\
-z : scalar, complex number\n    the argument/location, where the bessel function has to be evaluated\n\
+v : scalar, floating point number\n    order of the Bessel function\n\
+z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the bessel function of the second kind and order v at complex value z"
+r : scalar, complex number\n    result of the Bessel function of the second kind and order v at complex value z"
 PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"v", (char*)"z", (char*)"es", (char*)"debug", NULL };
 
@@ -300,11 +300,11 @@ PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 #define hv_docstring "hankel(v, z, m, /, es=False)\n\n\
-Calculates the bessel function of the third kind, also known as Hankel function\n\n\
+Calculates the Bessel function of the third kind, also known as Hankel function\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the bessel function\n\
-z : scalar, complex number\n    the argument/location, where the bessel function has to be evaluated\n\
-m : scalar, integer\n    kind of the hankel function, possible values: 1, 2\n\
+v : scalar, floating point number\n    order of the Bessel function\n\
+z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
+m : scalar, integer\n    kind of the Hankel function, possible values: 1, 2\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
 r : scalar, complex number\n    result of the bessel function of the second kind and order v at complex value z"
@@ -341,13 +341,13 @@ PyObject* mie_art_hankel(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 #define bi_docstring "besseli(v, z, m, /, es=False)\n\n\
-Calculates the modified bessel function of the first kind\n\n\
+Calculates the modified Bessel function of the first kind\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the bessel function\n\
-z : scalar, complex number\n    the argument/location, where the bessel function has to be evaluated\n\
+v : scalar, floating point number\n    order of the Bessel function\n\
+z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the modified bessel function of the first kind and order v at complex value z"
+r : scalar, complex number\n    result of the modified Bessel function of the first kind and order v at complex value z"
 PyObject* mie_art_besseli(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"v", (char*)"z", (char*)"es", (char*)"debug", NULL };
 
@@ -379,13 +379,13 @@ PyObject* mie_art_besseli(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 #define bk_docstring "besselk(v, z, m, /, es=False)\n\n\
-Calculates the modified bessel function of the second kind\n\n\
+Calculates the modified Bessel function of the second kind\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the bessel function\n\
-z : scalar, complex number\n    the argument/location, where the bessel function has to be evaluated\n\
+v : scalar, floating point number\n    order of the Bessel function\n\
+z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the modified bessel function of the second kind and order v at complex value z"
+r : scalar, complex number\n    result of the modified Bessel function of the second kind and order v at complex value z"
 PyObject* mie_art_besselk(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"v", (char*)"z", (char*)"es", (char*)"debug", NULL };
 
@@ -426,7 +426,7 @@ Parameters\n----------\n\
 z : scalar, complex number\n    the argument/location, where the airy function has to be evaluated\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the airy function at complex value z"
+r : scalar, complex number\n    result of the Airy function at complex value z"
 PyObject* mie_art_airy(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"z", (char*)"es", (char*)"debug", NULL };
 
@@ -526,7 +526,7 @@ static int calc_nmax(double x) {
 }
 
 #define mieab_docstring "Mie_ab(m, x)\n\n\
-Computes external field coefficients $a_n$ and $b_n$ based on inputs of $m$ and $x=\\pi\\,d_p/\\lambda$.\n\n\
+Computes external field coefficients $a_n$ and $b_n$ based on inputs of refractive index $m$ and size parameter $x=\\pi\\,d_p/\\lambda$.\n\n\
 Parameters\n----------\n\
 m : scalar, complex number\n    refractive index of the particle reduced by the refractive index of the surrounding medium\n\
 x : scalar, floating point number\n    size parameter of the particle\n\n\
@@ -607,8 +607,8 @@ PyObject* mie_art_mieab(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 #define miecoatedab_docstring "MieCoated_ab(m_core, x_core, m_shell, x_shell)\n\n\
-Computes external field coefficients $a_n$ and $b_n$ based on inputs of $m_core$,$m_shell$,\n\
-$x_core=\\pi\\,d_core/\\lambda$ and $x_shell=\\pi\\,d_shell/\\lambda$.\n\n\
+Computes external field coefficients $a_n$ and $b_n$ based on inputs of refractive indices $m_core$ and $m_shell$,\n\
+and size parameters $x_core=\\pi\\,d_core/\\lambda$ and $x_shell=\\pi\\,d_shell/\\lambda$.\n\n\
 Parameters\n----------\n\
 m_core : scalar, complex number\n    refractive index of the particle reduced by the refractive index of the surrounding medium\n\
 x_core : scalar, floating point number\n    size parameter of the particle's core without coating\n\
@@ -741,7 +741,7 @@ PyObject* mie_art_miecoatedab(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 #define miecd_docstring "Mie_cd(m, x)\n\n\
-Computes internal field coefficients $c_n$ and $d_n$ based on inputs of $m$ and $x=\\pi\\,d_p/\\lambda$.\n\n\
+Computes internal field coefficients $c_n$ and $d_n$ based on inputs of refractive index $m$ and size parameter $x=\\pi\\,d_p/\\lambda$.\n\n\
 Parameters\n----------\n\
 m : scalar, complex number\n    refractive index of the particle reduced by the refractive index of the surrounding medium\n\
 x : scalar, floating point number\n    size parameter of the particle\n\n\
@@ -826,12 +826,7 @@ PyObject* mie_art_miecd(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 #define miepitau_docstring "Mie_pitau(theta, nmax)\n\n\
-Calculates $\\pi_n$ and $\\tau_n$.\n\n\
-This function uses recurrence relations to calculate $\\pi_n$ and $\\tau_n$,\n\
-beginning with $\\pi_0=1$, $\\pi_1=3\\mu$ (where $\\mu$ is the cosine of the scattering angle $\\theta$),\n\
-$\\tau_0=\\mu$, and $\\tau_1=3cos(2cos^{-1}(\\mu))$:\n\n\
-${\\displaystyle \\pi_n=\\frac{2n-1}{n-1}\\mu\\pi_{n-1}-\\frac{n}{n-1}\\pi_{n-2}}$\n\n\
-${\\displaystyle \\tau_n=n\\mu\\pi_n-(n+1)\\pi_{n-1}}$\n\n\
+Calculates angular functions $\\pi_n$ and $\\tau_n$.\n\n\
 Parameters\n----------\n\
 theta : scalar or array-like (1dimensional), floating point number\n    the scattering angle(s) $\\theta$\n\
 nmax : scalar, integer\n    the maximum number of coefficients to compute.\n    Typically, $nmax = floor\\left(2+x+4x^{1/3}\\right)$, but can be given any integer.\n\n\
@@ -947,15 +942,15 @@ struct MieResult {
 Parameters\n----------\n\
 an : array-like, 1dimensional, complex numbers\n    external field coefficients $a_n$\n\
 bn : array-like, 1dimensional, complex numbers\n    external field coefficients $b_n$\n\
-wavelength : scalar, floating point number\n    the wavelength of incident light, in nanometers\n\
-diameter : scalar, floating point number\n    the diameter of the whole partical, in nanometers\n\
+wavelength : scalar, floating point number\n    the wavelength of incident light, in nm\n\
+diameter : scalar, floating point number\n    the diameter of the whole particle, in nm\n\
 asCrossSection : scalar, bool, optional\n    if specified and set to True, returns the results as optical cross-sections with units of nm$^2$.\n\
-asDict : scalar, bool, optional\n    if specified and set to True, returns the results as a dict.\n\n\
+asDict : scalar, bool, optional\n    if specified and set to True, returns the results as a dictionary.\n\n\
 Returns\n-------\n\
-qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars, floating point numbers\n    Mie efficencies as described in MieQ()\n\
-qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars, floating point numbers\n    Mie efficencies as optical cross sections, if asCrossSection set to True\n\
-q : dict\n   dictionary of the Mie efficencies, if asDict is set to True\n\
-c : dict\n   dictionary of Mie efficencies as optical cross sections, if asDict and asCrossSection are both set to True"
+qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars, floating point numbers\n    Mie efficiencies as described in MieQ()\n\
+qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars, floating point numbers\n    Mie efficiencies as optical cross sections, if asCrossSection set to True\n\
+q : dict\n   dictionary of the Mie efficiencies, if asDict is set to True\n\
+c : dict\n   dictionary of Mie efficiencies as optical cross sections, if asDict and asCrossSection are both set to True"
 MieResult ab2mie(int nmax, std::complex<double> an[], std::complex<double> bn[], double wavelength, double diameter, int asCrossSection) {
     MieResult res;
     res.qext = 0.0;
@@ -1078,27 +1073,19 @@ PyObject* mie_art_ab2mie(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 #define mieq_docstring "MieQ(m, diameter, wavelength, /, nMedium=1.0, asCrossSection=False, asDict=False)\n\n\
-Computes Mie efficencies $Q$ and asymmetry parameter $g$ of a single, homogeneous particle. Uses Mie_ab() to calculate $a_n$ and $b_n$, and then calculates $Q$ via:\n\
-${\\displaystyle Q_{ext}=\\frac{2}{x^2}\\sum_{n=1}^{n_{max}}(2n+1)\\:\\text{Re}\\left\\{a_n+b_n\\right\\}}$\n\
-${\\displaystyle Q_{sca}=\\frac{2}{x^2}\\sum_{n=1}^{n_{max}}(2n+1)(|a_n|^2+|b_n|^2)}$\n\
-${\\displaystyle Q_{abs}=Q_{ext}-Q_{sca}}$\n\
-${\\displaystyle Q_{back}=\\frac{1}{x^2} \\left| \\sum_{n=1}^{n_{max}}(2n+1)(-1)^n(a_n-b_n) \\right| ^2}$\n\
-${\\displaystyle Q_{ratio}=\\frac{Q_{back}}{Q_{sca}}}$\n\
-${\\displaystyle g=\\frac{4}{Q_{sca}x^2}\\left[\\sum\\limits_{n=1}^{n_{max}}\\frac{n(n+2)}{n+1}\\text{Re}\\left\\{a_n a_{n+1}^*+b_n b_{n+1}^*\\right\\}+\\sum\\limits_{n=1}^{n_{max}}\\frac{2n+1}{n(n+1)}\\text{Re}\\left\\{a_n b_n^*\\right\\}\\right]}$\n\
-${\\displaystyle Q_{pr}=Q_{ext}-gQ_{sca}}$\n\
-where asterisks denote the complex conjugates.\n\n\
+Computes extinction, scattering, backscattering and absorption efficiencies, radiation pressure and asymmetry parameter\n\n\
 Parameters\n----------\n\
 m : scalar or array-like, complex number\n    refractive index of the particle reduced by the refractive index of the surrounding medium\n\
-diameter : scalar, floating point number\n    the diameter of the whole partical, in nanometers\n\
-wavelength : scalar or array-like, floating point number\n    the wavelength of incident light, in nanometers\n    has to be of the same shape as m\n\
+diameter : scalar, floating point number\n    the diameter of the whole particle, in nm\n\
+wavelength : scalar or array-like, floating point number\n    the wavelength of incident light, in nm\n    has to be of the same shape as m\n\
 nMedium : scalar, floating point number, optional\n    the refractive index of the surrounding medium without the extinction part\n\
 asCrossSection : scalar, bool, optional\n    if specified and set to True, returns the results as optical cross-sections with units of nm$^2$.\n\
-asDict : scalar, bool, optional\n    if specified and set to True, returns the results as a dict.\n\n\
+asDict : scalar, bool, optional\n    if specified and set to True, returns the results as a dictionary\n\n\
 Returns\n-------\n\
-qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars or array-like, floating point numbers, same shape as m\n    Mie efficencies as described above\n\
-cext,csca,cabs,cback,cratio,cpr,g :\n    scalars or array-like, floating point numbers, same shape as m\n    Mie efficencies as optical cross sections, if asCrossSection set to True\n\
-q : dict\n    dictionary of the Mie efficencies, if asDict is set to True\n    entries have the same shape as m (scalar or array-like)\n\
-c : dict\n    dictionary of Mie efficencies as optical cross sections, if asDict and asCrossSection are both set to True\n    entries have the same shape as m (scalar or array-like)"
+qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars or array-like, floating point numbers, same shape as m\n    Mie efficiencies: extinction, scattering, absorption, backscattering, and backscatter-ratio, radiation pressure and asymmetry parameter\n\
+cext,csca,cabs,cback,cratio,cpr,g :\n    scalars or array-like, floating point numbers, same shape as m\n    Mie efficiencies as optical cross sections, if asCrossSection set to True\n\
+q : dict\n    dictionary of the Mie efficiencies, if asDict is set to True\n    entries have the same shape as m (scalar or array-like)\n\
+c : dict\n    dictionary of Mie efficiencies as optical cross sections, if asDict and asCrossSection are both set to True\n    entries have the same shape as m (scalar or array-like)"
 PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"m", (char*)"diameter", (char*)"wavelength", (char*)"nMedium", (char*)"asCrossSection", (char*)"asDict", NULL };
 
@@ -1282,12 +1269,12 @@ diam_shell : scalar, floating point number\n    the diameter of the particle and
 wavelength : scalar or array-like, floating point number\n    the wavelength of incident light, in nanometers\n    same shape as m_core\n\
 nMedium : scalar, floating point number, optional\n    the refractive index of the surrounding medium without the extinction part\n\
 asCrossSection : scalar, bool, optional\n    if specified and set to True, returns the results as optical cross-sections with units of nm$^2$.\n\
-asDict : scalar, bool, optional\n    if specified and set to True, returns the results as a dict.\n\n\
+asDict : scalar, bool, optional\n    if specified and set to True, returns the results as a dictionary.\n\n\
 Returns\n-------\n\
-qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars or array-like, floating point numbers, same shape as m_core\n    Mie efficencies as described in MieQ()\n\
-qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars or array-like, floating point numbers, same shape as m_core\n    Mie efficencies as optical cross sections, if asCrossSection set to True\n\
-q : dict\n    dictionary of the Mie efficencies, if asDict is set to True\n    entries have the same shape as m_core (scalar or array-like)\n\
-c : dict\n    dictionary of Mie efficencies as optical cross sections, if asDict and asCrossSection are both set to True\n    entries have the same shape as m_core (scalar or array-like)"
+qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars or array-like, floating point numbers, same shape as m_core\n    Mie efficiencies as described in MieQ()\n\
+qext,qsca,qabs,qback,qratio,qpr,g :\n    scalars or array-like, floating point numbers, same shape as m_core\n    Mie efficiencies as optical cross sections, if asCrossSection set to True\n\
+q : dict\n    dictionary of the Mie efficiencies, if asDict is set to True\n    entries have the same shape as m_core (scalar or array-like)\n\
+c : dict\n    dictionary of Mie efficiencies as optical cross sections, if asDict and asCrossSection are both set to True\n    entries have the same shape as m_core (scalar or array-like)"
 PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"m_core", (char*)"diam_core", (char*)"m_shell", (char*)"diam_shell", (char*)"wavelength", (char*)"nMedium", (char*)"asCrossSection", (char*)"asDict", NULL };
 
@@ -1472,17 +1459,17 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 #define scatfunc_docstring "ScatteringFunction(m, diam, wavelength, theta, /, m_shell=m, fcoat=0.0)\n\n\
-Calculates the angle-dependent scattering intensities with parallel, perpendicular and unpolarized light.\n\n\
+Calculates the angle-dependent scattering intensities with parallel, perpendicular polarized and unpolarized light.\n\n\
 Parameters\n----------\n\
 m : scalar, complex number\n    complex refractive index of the particle (its core, when a coating is given)\n\
-diam : scalar, floating point number\n    the diameter of the particle (its core) in nanometers\n\
-wavelength : scalar, floating point number\n    the wavelength of the incident light in nanometers\n\
+diam : scalar, floating point number\n    the diameter of the particle (its core) in nm\n\
+wavelength : scalar, floating point number\n    the wavelength of the incident light in nm\n\
 theta : array-like, 1dimensional, floating point numbers\n    array of the scattering angles in radians\n\
 m_shell : scalar, complex number, optional\n    complex refractive index of the particles coating, defaults to the core's refractive index\n\
 fcoat : scalar, floating point number, optional\n    coating fraction as ratio of diameters, default 0.0\n\n\
 Results\n-------\n\
-sl : array-like, 1dimensional, floating point numbers\n    scattering intensities of parallel polarized light\n\
-sr : array-like, 1dimensional, floating point numbers\n    scattering intensities of perpendicular polarized light\n\
+sl : array-like, 1dimensional, floating point numbers\n    scattering intensities of perpendicular polarized light\n\
+sr : array-like, 1dimensional, floating point numbers\n    scattering intensities of parallel polarized light\n\
 su : array-like, 1dimensional, floating point numbers\n    scattering intensities of unpolarized light"
 void scattering_function(int anbn_len, std::complex<double> *an, std::complex<double> *bn, int nang, double *theta, int nmax, double *pin, double *taun, double *sl, double *sr, double *su) {
     int a,n,t;
@@ -1602,7 +1589,7 @@ Returns\n-------\n\
 x_range : array-like, 1dimensional, floating point numbers\n    diameters of the particle cores\n\
 y_range : array-like, 1dimensional, floating point numbers\n    diameters of the particles including the coating\n\
 crossArea : array-like, 1dimensional, floating point numbers\n    scaled particle cross section areas\n\
-normWeight : scalar, floating point number\n    normalisation weight"
+normWeight : scalar, floating point number\n    normalization weight"
 int calc_diam_count(double mean_diam, double std_diam, double res) {
     double dlogd = std::min(res*1.0, std::log10(std_diam)*0.25);
     int limit = (int)(3.0*std::log(std_diam)/dlogd);
@@ -1623,8 +1610,13 @@ void LogNormal_pdf_dexp(int arrlen, double diams[], double mean_diam, double std
         dexp[idx] = std::exp(-lnx*lnx/lgg2) / (diams[idx]*constant);
     }
 }
-void createLogNormalDistribution(double d_gn, double sigma_g, double fcoat, double res, double dens, int norm2core, int norm2volume,
-        double /*out*/ *x_range, double /*out*/ *y_range, double /*out*/ *crossArea, double /*out*/ *normWeight) {
+void createLogNormalDistribution(double d_gn, double sigma_g, double fcoat, double res, double dens, int norm2core, int norm2volume, double *x_range, double *y_range, double *crossArea, double *normWeight) {
+    //Helper function: createLogNormalDistribution
+    //Input
+    //  d_gn, sigma_g = cound median diameter, geometric standart deviation
+    //  fcoat = coating fraction for coated particles
+    //  res = resolution of the particle size distribution
+    //  dens = particle density in g/cm3
     int dcount = calc_diam_count(d_gn, sigma_g, res);
     int limit = dcount/2;
     double dlogd = std::min(res, std::log10(sigma_g)*0.25);
@@ -1719,7 +1711,7 @@ taun : array-like, 2dimensional, floating point numbers\n    field coefficients 
 Returns\n-------\n\
 s : scalar, floating point number\n    backscatter coefficient\n    It is not the same as the provided one through MieQ() or ab2mie()!"
 int calc_angles_count(double angres) {
-    return (int) (180.0 / angres + EPS);
+    return 1 + (int) (180.0 / angres + EPS);
 }
 void scattering_weights(double angres, double *theta, double *dtheta, double *scatwgts) {
     int nang = calc_angles_count(angres);
@@ -1914,11 +1906,13 @@ sizepar2 : scalar or 1dimensional array, floating point number(s)\n    geometric
 wavelength : scalar, floating point number\n    wavelength of the incident light in nanometers\n\
 nMedium : scalar, floating point number, optional\n    refractive index without extinction for the surrounding medium, default 1.0\n\
 fcoat : scalar, floating point number, optional\n    coating fraction, ratio of shell thickness to core radius, default 0.0\n\
-mc : scalar, complex number, optional\n    complex refractive index of the coating, default mc\n\
-density : scalar, floating point number, optional\n    mean density of the whole particle in g/cm3, default 1.0\n\
-resolution : scalar, floating point number, optional\n    number of bins of the particle size distribution, default 10, ignored when sizepar1 & sizepar2 array-like\n\n\
+mc : scalar, complex number, optional\n    complex refractive index of the coating, default mp\n\
+density : scalar, floating point number, optional\n    particle density in g/cm$^3$, default 1.0\n\
+resolution : scalar, floating point number, optional\n    number of bins per power of magnitude within the particle size distribution, default 10\n    ignored when sizepar1 & sizepar2 array-like\n\
+effcore : boolean/logical, optional\n    calculates cross-section as nm$^2$/(g of core), default True\n\
+normalized : normalized to nm$^2$/g particles, default True\n    setting to False works only with d & dNdlogD (array-like sizeparX)\n\n\
 Returns\n-------\n\
-mie_tots : dictionary\n    contains the Mie efficiencies of a particle size distribution \"Extinction\", \"Scattering\", \"Absorption\", the \"Asymmetrie\" parameter and the \"Backscattering\" efficiency specifically calculated from a weighted average over all scattering angles\n    it also contains the Mie efficiencies for every used particle size from the particle size distribution\n\n\
+mie_tots : dictionary\n    contains the Mie efficiencies of a particle size distribution \"Extinction\", \"Scattering\", \"Absorption\", the \"Asymmetry\" parameter and the \"Backscattering\" efficiency specifically calculated from a weighted average over all scattering angles\n\n\
 Important Note\n--------------\n\
 1dimensional arguments for sizepar1 and sizepar2 are not implemented yet, they will come in version 0.2.0"
 void size_distribution_optics(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, Mie_tots *mie_tots) {
@@ -2032,7 +2026,7 @@ PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
     double valueDens = 1.0;
     double valueRes = 10.0;
     int valueN2core = true;
-    int valueAsCrossSec = false;
+    int valueAsCrossSec = true;
     Mie_tots *mie_tots = new Mie_tots();
 //    int array_sizepar = 0;
     if(PyArg_ParseTupleAndKeywords(args, kwds, "Dddd|ddDddpp", kwlist, &valueNpMcore, &valueDmu, &valueDstd, &valueW, &valueNmedium, &valueFcoat, &valueNpMshell, &valueDens, &valueRes, &valueN2core, &valueAsCrossSec)) {
@@ -2131,7 +2125,8 @@ PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 
-#define sdpf_docstring "Size_Distribution_Phase_Function(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=True)\n\n\
+#define sdpf_docstring "Size_Distribution_Phase_Function(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=False)\n\n\
+Computes the scattering phase function for a log-normal particle size distribution.\n\n\
 Parameters\n----------\n\
 mp : scalar, complex number\n    complex refractive index of the particle (core)\n\
 sizepar1 : scalar or 1dimensional array, floating point number(s)\n    mean count diameter (if scalar) or particle sizes (if array) in nanometers\n\
@@ -2139,13 +2134,15 @@ sizepar2 : scalar or 1dimensional array, floating point number(s)\n    geometric
 wavelength : scalar, floating point number\n    wavelength of the incident light in nanometers\n\
 nMedium : scalar, floating point number, optional\n    refractive index without extinction for the surrounding medium, default 1.0\n\
 fcoat : scalar, floating point number, optional\n    coating fraction, ratio of shell thickness to core radius, default 0.0\n\
-mc : scalar, complex number, optional\n    complex refractive index of the coating, default mc\n\
-density : scalar, floating point number, optional\n    mean density of the whole particle in g/cm3, default 1.0\n\
-resolution : scalar, floating point number, optional\n    number of bins of the particle size distribution, default 10, ignored when sizepar1 & sizepar2 array-like\n\n\
+mc : scalar, complex number, optional\n    complex refractive index of the coating, default mp\n\
+density : scalar, floating point number, optional\n    particle density in g/cm$^3$, default 1.0\n\
+resolution : scalar, floating point number, optional\n    number of bins per power of magnitude within the particle size distribution, default 10\n    ignored when sizepar1 & sizepar2 array-like\n\
+effcore : boolean/logical, optional\n    calculates cross-section as nm$^2$/(g of core), default True\n\
+normalized : normalized to nm$^2$/g particles, default True\n    setting to False works only with d & dNdlogD (array-like sizeparX)\n\n\
 Returns\n-------\n\
 theta : array-like, 1dimensional, floating point numbers\n    scattering angles in radians\n\
-sl : array-like, 1dimensional, floating point numbers\n    scattering intensities of parallel polarized light\n\
-sr : array-like, 1dimensional, floating point numbers\n    scattering intensities of perpendicular polarized light\n\
+sl : array-like, 1dimensional, floating point numbers\n    scattering intensities of perpendicular polarized light\n\
+sr : array-like, 1dimensional, floating point numbers\n    scattering intensities of parallel polarized light\n\
 su : array-like, 1dimensional, floating point numbers\n    scattering intensities of unpolarized light\n\n\
 Important Note\n--------------\n\
 1dimensional arguments for sizepar1 and sizepar2 are not implemented yet, they will come in version 0.2.0"
@@ -2230,7 +2227,7 @@ PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
     double valueDens = 1.0;
     double valueRes = 10.0;
     int valueN2core = true;
-    int valueAsCrossSec = false;
+    int valueAsCrossSec = true;
     PyObject *res = NULL;
     //    int array_sizepar = 0;
 
@@ -2260,7 +2257,7 @@ PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
     } else {
 //        array_sizepar = 1;
 //        PyErr_Clear();
-	}
+    }
 
 //    if(array_sizepar) {
 //        PyObject *arr_ptr[] = { NULL, NULL };
@@ -2315,26 +2312,6 @@ PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
 //        return NULL;
 //    }
 
-//    PyObject *res = Py_BuildValue("{s:d,s:d,s:d,s:d,s:d,s:d,s:O,s:O,s:O,s:O,s:O}",
-//        "Extinction", mie_tots.bext,
-//        "Scattering", mie_tots.bsca,
-//        "Absorption", mie_tots.babs,
-//        "Backscattering", mie_tots.bback,
-//        "SSA", mie_tots.bssa,
-//        "Asymmetry", mie_tots.basym,
-//        "Extinction Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.ext_arr),
-//        "Scattering Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.sca_arr),
-//        "Absorption Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.abs_arr),
-//        "Backscattering Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.bck_arr),
-//        "Asymmetry Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.g_arr)
-//    );
-
-
-//    delete[] mie_tots.ext_arr;
-//    delete[] mie_tots.sca_arr;
-//    delete[] mie_tots.abs_arr;
-//    delete[] mie_tots.bck_arr;
-//    delete[] mie_tots.g_arr;
     return res;
 }
 

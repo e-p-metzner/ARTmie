@@ -21,7 +21,7 @@ readme = "README.md"
 license = {file = "LICENSE"}
 #license = "BSD-3-Clause"
 #license-files = [ "LICENSE" ]
-keywords = ["Mie", "extinction", "scattering", "backscattering"]
+keywords = ["Mie", "scattering", "backscattering", "extinction", "absorption", "size distribution", "spheres"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3"
