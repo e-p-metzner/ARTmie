@@ -1072,11 +1072,11 @@ PyObject* mie_art_ab2mie(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 
-#define mieq_docstring "MieQ(m, diameter, wavelength, /, nMedium=1.0, asCrossSection=False, asDict=False)\n\n\
+#define mieq_docstring "MieQ(m, diam, wavelength, /, nMedium=1.0, asCrossSection=False, asDict=False)\n\n\
 Computes extinction, scattering, backscattering and absorption efficiencies, radiation pressure and asymmetry parameter\n\n\
 Parameters\n----------\n\
 m : scalar or array-like, complex number\n    refractive index of the particle reduced by the refractive index of the surrounding medium\n\
-diameter : scalar, floating point number\n    the diameter of the whole particle, in nm\n\
+diam : scalar, floating point number\n    the diameter of the whole particle, in nm\n\
 wavelength : scalar or array-like, floating point number\n    the wavelength of incident light, in nm\n    has to be of the same shape as m\n\
 nMedium : scalar, floating point number, optional\n    the refractive index of the surrounding medium without the extinction part\n\
 asCrossSection : scalar, bool, optional\n    if specified and set to True, returns the results as optical cross-sections with units of nm$^2$.\n\
@@ -1087,7 +1087,7 @@ cext,csca,cabs,cback,cratio,cpr,g :\n    scalars or array-like, floating point n
 q : dict\n    dictionary of the Mie efficiencies, if asDict is set to True\n    entries have the same shape as m (scalar or array-like)\n\
 c : dict\n    dictionary of Mie efficiencies as optical cross sections, if asDict and asCrossSection are both set to True\n    entries have the same shape as m (scalar or array-like)"
 PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = { (char*)"m", (char*)"diameter", (char*)"wavelength", (char*)"nMedium", (char*)"asCrossSection", (char*)"asDict", NULL };
+    static char *kwlist[] = { (char*)"m", (char*)"diam", (char*)"wavelength", (char*)"nMedium", (char*)"asCrossSection", (char*)"asDict", NULL };
 
     Py_complex valueNpM;
     double valueW;
@@ -1459,7 +1459,7 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 #define scatfunc_docstring "ScatteringFunction(m, diam, wavelength, theta, /, m_shell=m, fcoat=0.0)\n\n\
-Calculates the angle-dependent scattering intensities with parallel, perpendicular polarized and unpolarized light.\n\n\
+Calculates the angle-dependent scattering intensities for parallel, perpendicular polarized and unpolarized light.\n\n\
 Parameters\n----------\n\
 m : scalar, complex number\n    complex refractive index of the particle (its core, when a coating is given)\n\
 diam : scalar, floating point number\n    the diameter of the particle (its core) in nm\n\
@@ -1577,6 +1577,7 @@ PyObject* mie_art_scatfunc(PyObject *self, PyObject *args, PyObject *kwds) {
 // **** Mie for particle size distributions
 
 #define clnd_docstring "createLogNormalDistribution(mean_diam, stdev_diam, /, fcoat=0.0, res=0.0, norm2core=False, norm2volume=True)\n\n\
+Calculates the parameters regarding the log-normal particle size distribution needed internally by Size_Distribution_Optics and Size_Distribution_Phase_Function\n\n\
 Parameters\n----------\n\
 mean_diam : scalar, floating point number\n    the median count diameter of the particles in nanometers\n\
 stdev_diam : scalar, floating point number\n    the geometric standard deviation of the particle size distribution\n\
@@ -1699,6 +1700,7 @@ PyObject* mie_art_createLgNormDist(PyObject *self, PyObject *args, PyObject *kwd
 }
 
 #define cbs_docstring "calcBackscattering(x, an, bn, theta, dtheta, scatwts, pin, taun)\n\n\
+Calculates the scattering angle weighted Mie backscattering efficiency.\n\n\
 Parameters\n----------\n\
 x : scalar, floating point value\n    size parameter of the whole particle\n\
 an : array-like, 1dimensional, complex numbers\n    external field coefficients $a_n$\n\
@@ -1898,15 +1900,15 @@ struct Mie_tots {
 };
 
 //, nephscats=False, nephsensfile=\"\", cut=None, vectorout=False)\n\n
-#define sdo_docstring "Size_Distribution_Optics(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=True)\n\n\
+#define sdo_docstring "Size_Distribution_Optics(m, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=True)\n\n\
 Parameters\n----------\n\
-mp : scalar, complex number\n    complex refractive index of the particle (core)\n\
+m : scalar, complex number\n    complex refractive index of the particle (core)\n\
 sizepar1 : scalar or 1dimensional array, floating point number(s)\n    mean count diameter (if scalar) or particle sizes (if array) in nanometers\n\
 sizepar2 : scalar or 1dimensional array, floating point number(s)\n    geometric std. dev. (if scalar) or dNdlogD in cm$^{-3}$ (if array)\n\
 wavelength : scalar, floating point number\n    wavelength of the incident light in nanometers\n\
 nMedium : scalar, floating point number, optional\n    refractive index without extinction for the surrounding medium, default 1.0\n\
 fcoat : scalar, floating point number, optional\n    coating fraction, ratio of shell thickness to core radius, default 0.0\n\
-mc : scalar, complex number, optional\n    complex refractive index of the coating, default mp\n\
+mc : scalar, complex number, optional\n    complex refractive index of the coating, default m\n\
 density : scalar, floating point number, optional\n    particle density in g/cm$^3$, default 1.0\n\
 resolution : scalar, floating point number, optional\n    number of bins per power of magnitude within the particle size distribution, default 10\n    ignored when sizepar1 & sizepar2 array-like\n\
 effcore : boolean/logical, optional\n    calculates cross-section as nm$^2$/(g of core), default True\n\
@@ -1914,6 +1916,7 @@ normalized : normalized to nm$^2$/g particles, default True\n    setting to Fals
 Returns\n-------\n\
 mie_tots : dictionary\n    contains the Mie efficiencies of a particle size distribution \"Extinction\", \"Scattering\", \"Absorption\", the \"Asymmetry\" parameter and the \"Backscattering\" efficiency specifically calculated from a weighted average over all scattering angles\n\n\
 Important Note\n--------------\n\
+The size distribution is currently hardcoded to be log-normal. Other distributions may follow in future versions.\n\
 1dimensional arguments for sizepar1 and sizepar2 are not implemented yet, they will come in version 0.2.0"
 void size_distribution_optics(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, Mie_tots *mie_tots) {
     double res = 1.0/resolution;
@@ -2014,7 +2017,7 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     delete[] bn;
 }
 PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = { (char*)"mp", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", NULL };
+    static char *kwlist[] = { (char*)"m", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", NULL };
 
     Py_complex valueNpMcore;
     Py_complex valueNpMshell = nanPyCplx();
@@ -2125,16 +2128,16 @@ PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 
-#define sdpf_docstring "Size_Distribution_Phase_Function(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=False)\n\n\
+#define sdpf_docstring "Size_Distribution_Phase_Function(m, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=False)\n\n\
 Computes the scattering phase function for a log-normal particle size distribution.\n\n\
 Parameters\n----------\n\
-mp : scalar, complex number\n    complex refractive index of the particle (core)\n\
+m : scalar, complex number\n    complex refractive index of the particle (core)\n\
 sizepar1 : scalar or 1dimensional array, floating point number(s)\n    mean count diameter (if scalar) or particle sizes (if array) in nanometers\n\
 sizepar2 : scalar or 1dimensional array, floating point number(s)\n    geometric std. dev. (if scalar) or dNdlogD in cm$^{-3}$ (if array)\n\
 wavelength : scalar, floating point number\n    wavelength of the incident light in nanometers\n\
 nMedium : scalar, floating point number, optional\n    refractive index without extinction for the surrounding medium, default 1.0\n\
 fcoat : scalar, floating point number, optional\n    coating fraction, ratio of shell thickness to core radius, default 0.0\n\
-mc : scalar, complex number, optional\n    complex refractive index of the coating, default mp\n\
+mc : scalar, complex number, optional\n    complex refractive index of the coating, default m\n\
 density : scalar, floating point number, optional\n    particle density in g/cm$^3$, default 1.0\n\
 resolution : scalar, floating point number, optional\n    number of bins per power of magnitude within the particle size distribution, default 10\n    ignored when sizepar1 & sizepar2 array-like\n\
 effcore : boolean/logical, optional\n    calculates cross-section as nm$^2$/(g of core), default True\n\
@@ -2145,6 +2148,7 @@ sl : array-like, 1dimensional, floating point numbers\n    scattering intensitie
 sr : array-like, 1dimensional, floating point numbers\n    scattering intensities of parallel polarized light\n\
 su : array-like, 1dimensional, floating point numbers\n    scattering intensities of unpolarized light\n\n\
 Important Note\n--------------\n\
+The size distribution is currently hardcoded to be log-normal. Other distributions may follow in future versions.\n\
 1dimensional arguments for sizepar1 and sizepar2 are not implemented yet, they will come in version 0.2.0"
 void size_distribution_phase_function(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, int nang, double *outTheta, double *outSL, double *outSR, double *outSU) {
     double res = 1.0/resolution;
@@ -2215,7 +2219,7 @@ void size_distribution_phase_function(std::complex<double> m_core, double mean_d
     delete[] bn;
 }
 PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = { (char*)"mp", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", NULL };
+    static char *kwlist[] = { (char*)"m", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", NULL };
 
     Py_complex valueNpMcore;
     Py_complex valueNpMshell = nanPyCplx();

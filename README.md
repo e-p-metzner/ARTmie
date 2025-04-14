@@ -13,7 +13,7 @@ The Code was mainly ported from Matlab and Fortran to C++.
 
 ## Installation
 
-<h4>directly from PIP</h4>
+<h4>from the Python Package Index (PyPI)</h4>
 
 ```python
 pip install ARTmie
@@ -21,8 +21,8 @@ pip install ARTmie
 
 <h4>from source</h4>
 
-1) Download the source code from this git by clicking the triangular button next to `Code` and selecting e.g. `zip` underneath *Download source code*.<br>
-2) Then extract to source code to a desired location.<br>
+1) Download the source code from this git by clicking the triangular button next to `Code` and selecting e.g. [zip](https://gitlab.kit.edu/enrico.metzner/artmie/-/archive/main/artmie-main.zip) underneath *Download source code*.<br>
+2) Extract to source code to a desired location.<br>
 3) Open a terminal with an appropriate python environment (Python 3.0 or higher) and Numpy (1.5 or higher, tested with 2.0).<br>
 4) Change to the directory of the ARTmie project (dir above src):<br>
 ```
@@ -50,6 +50,7 @@ ARTmie is available under the 3-Clause BSD license. See [LICENSE](./LICENSE) for
 ## Contributor(s)
 
 Enrico P. Metzner
+
 
 
 ## Roadmap
