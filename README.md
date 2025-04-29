@@ -55,7 +55,7 @@ Enrico P. Metzner
 
 ## Roadmap
 
-for version 0.1.1:
+for version 0.1.2:
  - write documentation
  - create test-script to validate the installation
 

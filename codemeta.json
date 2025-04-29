@@ -49,19 +49,6 @@
   ],
   "programmingLanguage": "Python 3",
   "softwareRequirements": "https://numpy.org/doc/2.0/index.html",
-  "version": "v0.1.0",
-  "developmentStatus": "active",
-  "@id": "https://doi.org/10.35097/gdmcznm5cg01b1wa",
-  "identifier": [
-    {
-      "@type": "PropertyValue",
-      "propertyID": "DOI",
-      "value": "10.35097/gdmcznm5cg01b1wa"
-    },
-    {
-      "@type": "PropertyValue",
-      "propertyID": "RADAR",
-      "value": "gdmcznm5cg01b1wa"
-    }
-  ]
+  "version": "v0.1.1",
+  "developmentStatus": "active"
 }
