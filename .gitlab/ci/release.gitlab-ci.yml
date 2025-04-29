@@ -33,4 +33,4 @@ release-create:
   - apt-get install -y jq
   script:
 #  - facile-rs gitlab publish --release-description "$RELEASE_DESCRIPTION" --private-token "$PRIVATE_TOKEN"
-  - facile-rs gitlab publich ${DATACITE_REGISTRY_URL}/${DATACITE_RELEASE}
+  - facile-rs gitlab publish ${DATACITE_REGISTRY_URL}/${DATACITE_RELEASE}
