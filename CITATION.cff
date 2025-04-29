@@ -6,7 +6,7 @@ title: ARTmie
 abstract: a fast python package for mie scattering and backscattering calculations
   of single particles, coated particles and log-normal distributed particles
 version: 0.1.0
-date-released: 2025-04-10
+date-released: 2025-04-29
 authors:
 - given-names: Enrico
   family-names: Metzner
