@@ -27,8 +27,8 @@
         "givenName": "Enrico"
     },
     "dateCreated": "2025-03-01",
-    "dateModified": "2025-04-10",
-    "datePublished": "2025-04-10",
+    "dateModified": "2025-04-29",
+    "datePublished": "2025-04-29",
     "description": "a fast python package for mie scattering and backscattering calculations of single particles, coated particles and log-normal distributed particles",
     "keywords": [
         "Python",
