@@ -94,7 +94,7 @@ ax.legend()
 plt.show()
 ```
 
-![image]{docs/figures/bk7.png}
+![Plot of wavelength dependend Mie efficiencies for BK7 crown glass]{./docs/source/figures/bk7.png}
 
 
 
