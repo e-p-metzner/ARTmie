@@ -44,7 +44,8 @@ python -m pip install .
 ## Example
 
 Calculating the Mie efficiencies for extinction, scattering, absoprtion and backscattering for a glass sphere (crown glass, BK7) depending on the wavelength<br>
-Refractive index data are taken from <a src="https://en.wikipedia.org/wiki/Sellmeier_equation">wikipedia</a> and <a src="https://refractiveindex.info/?shelf=3d&book=glass&page=BK7">refractiveindex.info</a><br>
+Refractive index data are taken from [wikipedia](https://en.wikipedia.org/wiki/Sellmeier_equation) and [refractiveindex.info](https://refractiveindex.info/?shelf=3d&book=glass&page=BK7">refractiveindex.info)
+<br>
 
 ```python
 #import libraries
