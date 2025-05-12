@@ -4,6 +4,7 @@
 #include <numpy/ndarrayobject.h>
 #include <numpy/npy_3kcompat.h>
 #include <numpy/npy_math.h>
+#include <string>
 #include "ARTmie_amos.cpp"
 
 
@@ -194,6 +195,15 @@ int py2c_cplxarr(PyArrayObject* pyarr, std::complex<double> *carr) {
 //    return 1;
 }
 
+const char* shape2str(int ndim, npy_intp* shape) {
+    std::string s = "(";
+    for(int i=0; i<ndim; i++) {
+        if(i>0)
+            s += ",";
+        s += std::to_string((long)shape[i]);
+    }
+    return (s+")").c_str();
+}
 
 
 
@@ -1111,42 +1121,44 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
         PyErr_Clear();
     }
 
-    if(numArrs<0)
-    if(PyArg_ParseTupleAndKeywords(args, kwds, "OdO|dpp", kwlist, &arr_cplx_ptr[0], &valueD, &arr_ptr[0], &valueNmedium, &valueCSS, &valueDict)) {
-        if(parse_arrays(1, NPY_COMPLEX64, arr_cplx_ptr, array_cplx))
-            ctype = NPY_COMPLEX64;
-        if(ctype<0)
-        if(parse_arrays(1, NPY_COMPLEX128, arr_cplx_ptr, array_cplx))
-            ctype = NPY_COMPLEX128;
-        if(ctype<0) {
-            PyErr_SetString(
-                PyExc_TypeError,
-                "The m array has to be of type float, double or complex."
-            );
-            return NULL;
+    if(numArrs<0) {
+        if(PyArg_ParseTupleAndKeywords(args, kwds, "OdO|dpp", kwlist, &arr_cplx_ptr[0], &valueD, &arr_ptr[0], &valueNmedium, &valueCSS, &valueDict)) {
+            if(parse_arrays(1, NPY_COMPLEX64, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX64;
+            if(ctype<0)
+            if(parse_arrays(1, NPY_COMPLEX128, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX128;
+            if(ctype<0) {
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "The m array has to be of type float, double or complex."
+                );
+                return NULL;
+            }
+            if(parse_arrays(1, NPY_FLOAT, arr_ptr, array))
+                dtype = NPY_FLOAT;
+            if(dtype<0)
+            if(parse_arrays(1, NPY_DOUBLE, arr_ptr, array))
+                dtype = NPY_DOUBLE;
+            if(dtype<0) {
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "The wavelengths have to be an array of type float or double."
+                );
+                return NULL;
+            }
+            numArrs = 2;
+        } else {
+            PyErr_Clear();
         }
-        if(parse_arrays(1, NPY_FLOAT, arr_ptr, array))
-            dtype = NPY_FLOAT;
-        if(dtype<0)
-        if(parse_arrays(1, NPY_DOUBLE, arr_ptr, array))
-            dtype = NPY_DOUBLE;
-        if(dtype<0) {
-            PyErr_SetString(
-                PyExc_TypeError,
-                "The wavelengths have to be an array of type float or double."
-            );
-            return NULL;
-        }
-        numArrs = 2;
-    } else {
-        PyErr_Clear();
     }
 
-    if(numArrs<0)
-    PyErr_SetString(
-        PyExc_TypeError,
-        "Arguments do not match function definition: MieQ(m, diameter, wavelength, /, nMedium=1.0, asCrossSection=False, asDict=False)"
-    );
+    if(numArrs<0) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "Arguments do not match function definition: MieQ(m, diameter, wavelength, /, nMedium=1.0, asCrossSection=False, asDict=False)"
+        );
+    }
 
     PyObject* res = NULL;
     if(numArrs==0) {
@@ -1192,6 +1204,7 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
                 PyExc_IndexError,
                 "m and wavelength have to be of the same shape!"
             );
+            return res;
         }
 
         npy_intp flatDims[1];
@@ -1203,8 +1216,13 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
 
         std::complex<double> valuesM[a_len];
         double valuesW[a_len];
-        py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesM);
-        py2c_dblarr( (PyArrayObject*)PyArray_Newshape((PyArrayObject*)array[0],      &flatShp, NPY_CORDER), valuesW);
+        if(ndimW==1) {
+            py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesM);
+            py2c_dblarr( (PyArrayObject*)array[0],      valuesW);
+        } else {
+            py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesM);
+            py2c_dblarr( (PyArrayObject*)PyArray_Newshape((PyArrayObject*)array[0],      &flatShp, NPY_CORDER), valuesW);
+        }
 
         double bext[a_len];
         double bsca[a_len];
@@ -1232,13 +1250,30 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
         PyArray_Dims outShp = { nullptr, 0 };
         outShp.ptr = shapeM;
         outShp.len = ndimM;
-        PyObject* pyext_arr = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
-        PyObject* pysca_arr = PyArray_Newshape(c2py_dblarr(a_len, bsca), &outShp, NPY_CORDER);
-        PyObject* pyabs_arr = PyArray_Newshape(c2py_dblarr(a_len, babs), &outShp, NPY_CORDER);
-        PyObject* pybck_arr = PyArray_Newshape(c2py_dblarr(a_len, bbck), &outShp, NPY_CORDER);
-        PyObject* pyrat_arr = PyArray_Newshape(c2py_dblarr(a_len, brat), &outShp, NPY_CORDER);
-        PyObject* pypr_arr =  PyArray_Newshape(c2py_dblarr(a_len, bpr),  &outShp, NPY_CORDER);
-        PyObject* pyasy_arr = PyArray_Newshape(c2py_dblarr(a_len, bg),   &outShp, NPY_CORDER);
+        PyObject* pyext_arr = NULL;
+        PyObject* pysca_arr = NULL;
+        PyObject* pyabs_arr = NULL;
+        PyObject* pybck_arr = NULL;
+        PyObject* pyrat_arr = NULL;
+        PyObject* pypr_arr  = NULL;
+        PyObject* pyasy_arr = NULL;
+        if(ndimW==1) {
+            pyext_arr = (PyObject*)c2py_dblarr(a_len, bext);
+            pysca_arr = (PyObject*)c2py_dblarr(a_len, bsca);
+            pyabs_arr = (PyObject*)c2py_dblarr(a_len, babs);
+            pybck_arr = (PyObject*)c2py_dblarr(a_len, bbck);
+            pyrat_arr = (PyObject*)c2py_dblarr(a_len, brat);
+            pypr_arr  = (PyObject*)c2py_dblarr(a_len, bpr);
+            pyasy_arr = (PyObject*)c2py_dblarr(a_len, bg);
+        } else {
+            pyext_arr = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
+            pysca_arr = PyArray_Newshape(c2py_dblarr(a_len, bsca), &outShp, NPY_CORDER);
+            pyabs_arr = PyArray_Newshape(c2py_dblarr(a_len, babs), &outShp, NPY_CORDER);
+            pybck_arr = PyArray_Newshape(c2py_dblarr(a_len, bbck), &outShp, NPY_CORDER);
+            pyrat_arr = PyArray_Newshape(c2py_dblarr(a_len, brat), &outShp, NPY_CORDER);
+            pypr_arr  = PyArray_Newshape(c2py_dblarr(a_len, bpr),  &outShp, NPY_CORDER);
+            pyasy_arr = PyArray_Newshape(c2py_dblarr(a_len, bg),   &outShp, NPY_CORDER);
+        }
         if(valueDict>0) {
             if(valueCSS>0) {
                 res = Py_BuildValue("{s:O,s:O,s:O,s:O,s:O,s:O,s:O}",
@@ -1302,42 +1337,44 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
     	PyErr_Clear();
     }
 
-    if(numArrs<0)
-    if(PyArg_ParseTupleAndKeywords(args, kwds, "OdOdO|dpp", kwlist, &arr_cplx_ptr[0], &valueDcore, &arr_cplx_ptr[1], &valueDshell, &arr_ptr[0], &valueNmedium, &valueCSS, &valueDict)) {
-        if(parse_arrays(2, NPY_COMPLEX64, arr_cplx_ptr, array_cplx))
-            ctype = NPY_COMPLEX64;
-        if(ctype<0)
-        if(parse_arrays(2, NPY_COMPLEX128, arr_cplx_ptr, array_cplx))
-            ctype = NPY_COMPLEX128;
-        if(ctype<0) {
-            PyErr_SetString(
-                PyExc_TypeError,
-                "The arrays m_core and m_shell have to be of type float, double or complex."
-            );
-            return NULL;
+    if(numArrs<0) {
+        if(PyArg_ParseTupleAndKeywords(args, kwds, "OdOdO|dpp", kwlist, &arr_cplx_ptr[0], &valueDcore, &arr_cplx_ptr[1], &valueDshell, &arr_ptr[0], &valueNmedium, &valueCSS, &valueDict)) {
+            if(parse_arrays(2, NPY_COMPLEX64, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX64;
+            if(ctype<0)
+            if(parse_arrays(2, NPY_COMPLEX128, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX128;
+            if(ctype<0) {
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "The arrays m_core and m_shell have to be of type float, double or complex."
+                );
+                return NULL;
+            }
+            if(parse_arrays(1, NPY_FLOAT, arr_ptr, array))
+                dtype = NPY_FLOAT;
+            if(dtype<0)
+            if(parse_arrays(1, NPY_DOUBLE, arr_ptr, array))
+                dtype = NPY_DOUBLE;
+            if(dtype<0) {
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "The wavelengths have to be an array of type float or double."
+                );
+                return NULL;
+            }
+            numArrs = 3;
+        } else {
+            PyErr_Clear();
         }
-        if(parse_arrays(1, NPY_FLOAT, arr_ptr, array))
-            dtype = NPY_FLOAT;
-        if(dtype<0)
-        if(parse_arrays(1, NPY_DOUBLE, arr_ptr, array))
-            dtype = NPY_DOUBLE;
-        if(dtype<0) {
-            PyErr_SetString(
-                PyExc_TypeError,
-                "The wavelengths have to be an array of type float or double."
-            );
-            return NULL;
-        }
-        numArrs = 3;
-    } else {
-        PyErr_Clear();
     }
 
-    if(numArrs<0)
-    PyErr_SetString(
-        PyExc_TypeError,
-        "Arguments do not match function definition: MieCoatedQ(m_core, diam_core, m_shell, diam_shell, wavelength, /, nMedium=1.0, asCrossSection=False, asDict=False)"
-    );
+    if(numArrs<0) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "Arguments do not match function definition: MieCoatedQ(m_core, diam_core, m_shell, diam_shell, wavelength, /, nMedium=1.0, asCrossSection=False, asDict=False)"
+        );
+    }
 
     PyObject* res = NULL;
     if(numArrs==0) {
@@ -1363,31 +1400,31 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
             }
         } else {
             res = Py_BuildValue("ddddddd",mr.qext,mr.qsca,mr.qabs,mr.qback,mr.qratio,mr.qpr,mr.qg);
-		}
+        }
     }
     if(numArrs>1) {
         int ndimMc = PyArray_NDIM((PyArrayObject*)array_cplx[0]);
         int ndimMs = PyArray_NDIM((PyArrayObject*)array_cplx[1]);
         int ndimW = PyArray_NDIM((PyArrayObject*)array[0]);
         npy_intp* shapeMc = PyArray_SHAPE((PyArrayObject*)array_cplx[0]);
-        npy_intp* shapeMs = PyArray_SHAPE((PyArrayObject*)array_cplx[0]);
+        npy_intp* shapeMs = PyArray_SHAPE((PyArrayObject*)array_cplx[1]);
         npy_intp* shapeW = PyArray_SHAPE((PyArrayObject*)array[0]);
-        int mw_same = true;
-        if(ndimMc==ndimMs && ndimMc==ndimW) {
+        int mw_same = (ndimMc==ndimMs && ndimMc==ndimW);
+        if(mw_same) {
             for(int i=0; i<ndimMc && mw_same; i++)
                 mw_same = (shapeMc[i]==shapeMs[i] && shapeMc[i]==shapeW[i]);
-        } else {
-            mw_same = false;
         }
 
         if(!mw_same) {
             Py_XDECREF(array_cplx[0]);
             Py_XDECREF(array_cplx[1]);
             Py_XDECREF(array[0]);
-            PyErr_SetString(
-                PyExc_IndexError,
-                "m_core, m_shell and wavelength have to be of the same shape!"
+            PyErr_Format(
+                PyExc_ValueError,
+                "m_core, m_shell and wavelength cannot be broadcast together, found shapes %s, %s and %s.",
+                shape2str(ndimMc,shapeMc), shape2str(ndimMs,shapeMs), shape2str(ndimW,shapeW)
             );
+            return res;
         }
 
         npy_intp flatDims[1];
@@ -1400,9 +1437,15 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
         std::complex<double> valuesMcore[a_len];
         std::complex<double> valuesMshell[a_len];
         double valuesW[a_len];
-        py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesMcore);
-        py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[1], &flatShp, NPY_CORDER), valuesMshell);
-        py2c_dblarr( (PyArrayObject*)PyArray_Newshape((PyArrayObject*)array[0],      &flatShp, NPY_CORDER), valuesW);
+        if(ndimW==1) {
+            py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesMcore);
+            py2c_cplxarr((PyArrayObject*)array_cplx[1], valuesMshell);
+            py2c_dblarr( (PyArrayObject*)array[0],      valuesW);
+        } else {
+            py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesMcore);
+            py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[1], &flatShp, NPY_CORDER), valuesMshell);
+            py2c_dblarr( (PyArrayObject*)PyArray_Newshape((PyArrayObject*)array[0],      &flatShp, NPY_CORDER), valuesW);
+        }
 
         double bext[a_len];
         double bsca[a_len];
@@ -1412,6 +1455,8 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
         double bpr[a_len];
         double bg[a_len];
         for(int i=0; i<a_len; i++) {
+            valuesMcore[i]  /= valueNmedium;
+            valuesMshell[i] /= valueNmedium;
             double x = _PI_*valueDcore/valuesW[i];
             double y = _PI_*valueDshell/valuesW[i];
             int nmax = calc_nmax(y);
@@ -1431,13 +1476,30 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
         PyArray_Dims outShp = { nullptr, 0 };
         outShp.ptr = shapeMc;
         outShp.len = ndimMc;
-        PyObject* pyext_arr = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
-        PyObject* pysca_arr = PyArray_Newshape(c2py_dblarr(a_len, bsca), &outShp, NPY_CORDER);
-        PyObject* pyabs_arr = PyArray_Newshape(c2py_dblarr(a_len, babs), &outShp, NPY_CORDER);
-        PyObject* pybck_arr = PyArray_Newshape(c2py_dblarr(a_len, bbck), &outShp, NPY_CORDER);
-        PyObject* pyrat_arr = PyArray_Newshape(c2py_dblarr(a_len, brat), &outShp, NPY_CORDER);
-        PyObject* pypr_arr =  PyArray_Newshape(c2py_dblarr(a_len, bpr),  &outShp, NPY_CORDER);
-        PyObject* pyasy_arr = PyArray_Newshape(c2py_dblarr(a_len, bg),   &outShp, NPY_CORDER);
+        PyObject* pyext_arr = NULL;
+        PyObject* pysca_arr = NULL;
+        PyObject* pyabs_arr = NULL;
+        PyObject* pybck_arr = NULL;
+        PyObject* pyrat_arr = NULL;
+        PyObject* pypr_arr  = NULL;
+        PyObject* pyasy_arr = NULL;
+        if(ndimW==1) {
+            pyext_arr = (PyObject*)c2py_dblarr(a_len, bext);
+            pysca_arr = (PyObject*)c2py_dblarr(a_len, bsca);
+            pyabs_arr = (PyObject*)c2py_dblarr(a_len, babs);
+            pybck_arr = (PyObject*)c2py_dblarr(a_len, bbck);
+            pyrat_arr = (PyObject*)c2py_dblarr(a_len, brat);
+            pypr_arr  = (PyObject*)c2py_dblarr(a_len, bpr);
+            pyasy_arr = (PyObject*)c2py_dblarr(a_len, bg);
+        } else {
+            pyext_arr = PyArray_Newshape(c2py_dblarr(a_len, bext), &outShp, NPY_CORDER);
+            pysca_arr = PyArray_Newshape(c2py_dblarr(a_len, bsca), &outShp, NPY_CORDER);
+            pyabs_arr = PyArray_Newshape(c2py_dblarr(a_len, babs), &outShp, NPY_CORDER);
+            pybck_arr = PyArray_Newshape(c2py_dblarr(a_len, bbck), &outShp, NPY_CORDER);
+            pyrat_arr = PyArray_Newshape(c2py_dblarr(a_len, brat), &outShp, NPY_CORDER);
+            pypr_arr  = PyArray_Newshape(c2py_dblarr(a_len, bpr),  &outShp, NPY_CORDER);
+            pyasy_arr = PyArray_Newshape(c2py_dblarr(a_len, bg),   &outShp, NPY_CORDER);
+        }
         if(valueDict>0) {
             if(valueCSS>0) {
                 res = Py_BuildValue("{s:O,s:O,s:O,s:O,s:O,s:O,s:O}",
@@ -1450,7 +1512,7 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
             }
         } else {
             res = Py_BuildValue("OOOOOOO",
-                                pyext_arr, pysca_arr, pyabs_arr,pybck_arr,
+                                pyext_arr, pysca_arr, pyabs_arr, pybck_arr,
                                 pyrat_arr, pypr_arr, pyasy_arr);
         }
     }
