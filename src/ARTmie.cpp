@@ -236,59 +236,159 @@ PyObject* mie_art_gamma(PyObject *self, PyObject *args, PyObject *kwds) {
 #define bj_docstring "besselj(v, z, /, es=False)\n\n\
 Calculates the Bessel function of the first kind\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the Bessel function\n\
-z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
+v : scalar, float\n    order of the Bessel function\n\
+z : scalar or array-like, complex\n    the argument/location, where the Bessel function has to be evaluated\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the Bessel function of the first kind and order v at complex value z"
+r : scalar or array-like, complex\n    result of the Bessel function of the first kind and order v at complex value z, same shape as z"
 PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"v", (char*)"z", (char*)"es", (char*)"debug", NULL };
 
-    //use function for integer array and integer value
     int valueExpScl = false;
     int valueDebug = false;
     double valueV;
     Py_complex valueNpZ;
+
+    PyObject* arr_cplx_ptr[1] = { NULL };
+    PyObject* array_cplx[1]   = { NULL };
+
+    int numArrs = -1;
+    int ctype = -1;
+
     if(PyArg_ParseTupleAndKeywords(args, kwds, "dD|pp", kwlist, &valueV, &valueNpZ, &valueExpScl, &valueDebug)) {
+        numArrs = 0;
     } else {
+        PyErr_Clear();
+        return NULL;
+    }
+
+    if(numArrs < 0) {
+        if(PyArg_ParseTupleAndKeywords(args, kwds, "dO|pp", kwlist, &valueV, &arr_cplx_ptr[0], &valueExpScl, &valueDebug)) {
+            if(parse_arrays(1, NPY_COMPLEX64, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX64;
+            if(ctype<0)
+            if(parse_arrays(1, NPY_COMPLEX128, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX128;
+            if(ctype<0) {
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "The z array has to be of type float, double or complex."
+                );
+                return NULL;
+            }
+            numArrs = 1;
+        } else {
+            PyErr_Clear();
+        }
+    }
+
+    if(numArrs < 0) {
         PyErr_SetString(
             PyExc_TypeError,
             "The arguments dtypes do not match, expected (float,complex)"
         );
         return NULL;
     }
-
     double bjr[1], bji[1];
-    std::complex<double> bj = std::complex<double>(
-            std::numeric_limits<double>::quiet_NaN(),
-            std::numeric_limits<double>::quiet_NaN());
     int nz, idum;
-    zbesj(valueNpZ.real, valueNpZ.imag, valueV, 1+valueExpScl, 1, bjr, bji, &nz, &idum, &valueDebug);
-    if(nz>=0 && (idum==0 || idum==3)) {
-        bj = std::complex<double>(bjr[0],bji[0]);
+
+    PyObject* res = NULL;
+    if(numArrs == 0) {
+        zbesj(valueNpZ.real, valueNpZ.imag, valueV, 1+valueExpScl, 1, bjr, bji, &nz, &idum, &valueDebug);
+        std::complex<double> valueZ;
+        if(nz>=0 && (idum==0 || idum==3)) {
+            valueZ = std::complex<double>(bjr[0],bji[0]);
+        } else {
+            valueZ = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+        }
+        res = Py_BuildValue("D", c2py_cplx(valueZ));
     }
-    Py_complex cplxres = c2py_cplx(bj);
-    PyObject *res = Py_BuildValue("D", &cplxres);
+
+    if(numArrs > 0) {
+        int       ndimZ  = PyArray_NDIM( (PyArrayObject*)array_cplx[0]);
+        npy_intp* shapeZ = PyArray_SHAPE((PyArrayObject*)array_cplx[0]);
+        npy_intp  flatDims[1];
+        flatDims[0]      = PyArray_SIZE( (PyArrayObject*)array_cplx[0]);
+        int       a_len  = (int) flatDims[0];
+        std::complex<double> valuesZ[a_len];
+        if(ndimZ==1) {
+            py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesZ);
+        } else {
+            PyArray_Dims flatShp = { nullptr, 0 };
+            flatShp.ptr = flatDims;
+            flatShp.len = 1;
+            py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesZ);
+        }
+        for(int i=0; i<a_len; i++) {
+            zbesj(valuesZ[i].real(), valuesZ[i].imag(), valueV, 1+valueExpScl, 1, bjr, bji, &nz, &idum, &valueDebug);
+            if(nz>=0 && (idum==0 || idum==3)) {
+                valuesZ[i] = std::complex<double>(bjr[0],bji[0]);
+            } else {
+                valuesZ[i] = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+            }
+        }
+        if(ndimZ==1) {
+            res = Py_BuildValue("O", c2py_cplxarr(a_len, valuesZ));
+        } else {
+            PyArray_Dims outShp = { nullptr, 0 };
+            outShp.ptr = shapeZ;
+            outShp.len = ndimZ;
+            res = Py_BuildValue("O", PyArray_Newshape(c2py_cplxarr(a_len, valuesZ), &outShp, NPY_CORDER));
+        }
+    }
+
     return res;
 }
 #define by_docstring "bessely(v, z, /, es=False)\n\n\
 Calculates the Bessel function of the second kind\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the Bessel function\n\
-z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
+v : scalar, float\n    order of the Bessel function\n\
+z : scalar or array-like, complex\n    the argument/location, where the Bessel function has to be evaluated\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the Bessel function of the second kind and order v at complex value z"
+r : scalar or array-like, complex number\n    result of the Bessel function of the second kind and order v at complex value z, same shape as z"
 PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"v", (char*)"z", (char*)"es", (char*)"debug", NULL };
 
-    //use function for integer array and integer value
     int valueExpScl = false;
     int valueDebug = false;
     double valueV;
     Py_complex valueNpZ;
+
+    PyObject* arr_cplx_ptr[1] = { NULL };
+    PyObject* array_cplx[1]   = { NULL };
+
+    int numArrs = -1;
+    int ctype = -1;
+
     if(PyArg_ParseTupleAndKeywords(args, kwds, "dD|pp", kwlist, &valueV, &valueNpZ, &valueExpScl, &valueDebug)) {
+        numArrs = 0;
     } else {
+        PyErr_Clear();
+        return NULL;
+    }
+
+    if(numArrs < 0) {
+        if(PyArg_ParseTupleAndKeywords(args, kwds, "dO|pp", kwlist, &valueV, &arr_cplx_ptr[0], &valueExpScl, &valueDebug)) {
+            if(parse_arrays(1, NPY_COMPLEX64, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX64;
+            if(ctype<0)
+            if(parse_arrays(1, NPY_COMPLEX128, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX128;
+            if(ctype<0) {
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "The z array has to be of type float, double or complex."
+                );
+                return NULL;
+            }
+            numArrs = 1;
+        } else {
+            PyErr_Clear();
+        }
+    }
+
+    if(numArrs < 0) {
         PyErr_SetString(
             PyExc_TypeError,
             "The arguments dtypes do not match, expected (float,complex)"
@@ -297,56 +397,155 @@ PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
     }
 
     double byr[1], byi[1], cwr[1], cwi[1];
-    std::complex<double> by = std::complex<double>(
-            std::numeric_limits<double>::quiet_NaN(),
-            std::numeric_limits<double>::quiet_NaN());
     int nz, idum;
-    zbesy(valueNpZ.real, valueNpZ.imag, valueV, 1+valueExpScl, 1, byr, byi, &nz, cwr, cwi, &idum, &valueDebug);
-    if(nz>=0 && (idum==0 || idum==3)) {
-        by = std::complex<double>(byr[0], byi[0]);
+
+    PyObject* res = NULL;
+    if(numArrs == 0) {
+        zbesy(valueNpZ.real, valueNpZ.imag, valueV, 1+valueExpScl, 1, byr, byi, &nz, cwr, cwi, &idum, &valueDebug);
+        std::complex<double> valueZ;
+        if(nz>=0 && (idum==0 || idum==3)) {
+            valueZ = std::complex<double>(byr[0],byi[0]);
+        } else {
+            valueZ = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+        }
+        Py_complex cplxres = c2py_cplx(valueZ);
+        res = Py_BuildValue("D", c2py_cplx(valueZ));
     }
-    Py_complex cplxres = c2py_cplx(by);
-    PyObject *res = Py_BuildValue("D", &cplxres);
+
+    if(numArrs > 0) {
+        int       ndimZ  = PyArray_NDIM( (PyArrayObject*)array_cplx[0]);
+        npy_intp* shapeZ = PyArray_SHAPE((PyArrayObject*)array_cplx[0]);
+        npy_intp  flatDims[1];
+        flatDims[0]      = PyArray_SIZE( (PyArrayObject*)array_cplx[0]);
+        int       a_len  = (int) flatDims[0];
+        std::complex<double> valuesZ[a_len];
+        if(ndimZ==1) {
+            py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesZ);
+        } else {
+            PyArray_Dims flatShp = { nullptr, 0 };
+            flatShp.ptr = flatDims;
+            flatShp.len = 1;
+            py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesZ);
+        }
+        for(int i=0; i<a_len; i++) {
+            zbesy(valuesZ[i].real(), valuesZ[i].imag(), valueV, 1+valueExpScl, 1, byr, byi, &nz, cwr, cwi, &idum, &valueDebug);
+            if(nz>=0 && (idum==0 || idum==3)) {
+                valuesZ[i] = std::complex<double>(byr[0],byi[0]);
+            } else {
+                valuesZ[i] = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+            }
+        }
+        if(ndimZ==1) {
+            res = Py_BuildValue("O", c2py_cplxarr(a_len, valuesZ));
+        } else {
+            PyArray_Dims outShp = { nullptr, 0 };
+            outShp.ptr = shapeZ;
+            outShp.len = ndimZ;
+            res = Py_BuildValue("O", PyArray_Newshape(c2py_cplxarr(a_len, valuesZ), &outShp, NPY_CORDER));
+        }
+    }
+
     return res;
 }
 #define hv_docstring "hankel(v, z, m, /, es=False)\n\n\
 Calculates the Bessel function of the third kind, also known as Hankel function\n\n\
 Parameters\n----------\n\
-v : scalar, floating point number\n    order of the Bessel function\n\
-z : scalar, complex number\n    the argument/location, where the Bessel function has to be evaluated\n\
+v : scalar, float\n    order of the Bessel function\n\
+z : scalar or array-like, complex\n    the argument/location, where the Bessel function has to be evaluated\n\
 m : scalar, integer\n    kind of the Hankel function, possible values: 1, 2\n\
 es : scalar, boolean, optional\n    exponentially scales the result by exp(2/3*z**1.5) if set to True, default: False\n\n\
 Returns\n-------\n\
-r : scalar, complex number\n    result of the bessel function of the second kind and order v at complex value z"
+r : scalar or array-like, complex\n    result of the bessel function of the second kind and order v at complex value z, same shape as z"
 PyObject* mie_art_hankel(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"v", (char*)"z", (char*)"m", (char*)"es", (char*)"debug", NULL };
 
-    //use function for integer array and integer value
     int valueExpScl = false;
     int valueDebug = false;
     int valueM;
     double valueV;
     Py_complex valueNpZ;
+
+    PyObject* arr_cplx_ptr[1] = { NULL };
+    PyObject* array_cplx[1]   = { NULL };
+
+    int numArrs = -1;
+    int ctype = -1;
+
     if(PyArg_ParseTupleAndKeywords(args, kwds, "dDi|pp", kwlist, &valueV, &valueNpZ, &valueM, &valueExpScl, &valueDebug)) {
+        numArrs = 0;
     } else {
-        PyErr_SetString(
-            PyExc_TypeError,
-            "The arguments dtypes do not match, expected (float,complex)"
-        );
-        return NULL;
+        PyErr_Clear();
     }
 
-    std::complex<double> bh = std::complex<double>(
-            std::numeric_limits<double>::quiet_NaN(),
-            std::numeric_limits<double>::quiet_NaN());
+    if(numArrs < 0) {
+        if(PyArg_ParseTupleAndKeywords(args, kwds, "dOi|pp", kwlist, &valueV, &arr_cplx_ptr[0], &valueM, &valueExpScl, &valueDebug)) {
+            if(parse_arrays(1, NPY_COMPLEX64, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX64;
+            if(ctype<0)
+            if(parse_arrays(1, NPY_COMPLEX128, arr_cplx_ptr, array_cplx))
+                ctype = NPY_COMPLEX128;
+            if(ctype<0) {
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "The z array has to be of type float, double or complex."
+                );
+                return NULL;
+            }
+            numArrs = 1;
+        } else {
+            PyErr_Clear();
+        }
+    }
+
     double bhr[1], bhi[1];
     int nz, idum;
-    zbesh(valueNpZ.real,valueNpZ.imag, valueV, 1+valueExpScl, valueM, 1, bhr,bhi, &nz, &idum, &valueDebug);
-    if(nz>=0 && (idum==0 || idum==3)) {
-        bh = std::complex<double>(bhr[0], bhi[0]);
+
+    PyObject* res = NULL;
+    if(numArrs == 0) {
+    	zbesh(valueNpZ.real,valueNpZ.imag, valueV, 1+valueExpScl, valueM, 1, bhr,bhi, &nz, &idum, &valueDebug);
+        std::complex<double> valueZ;
+        if(nz>=0 && (idum==0 || idum==3)) {
+            valueZ = std::complex<double>(bhr[0],bhi[0]);
+        } else {
+            valueZ = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+        }
+        Py_complex cplxres = c2py_cplx(valueZ);
+        res = Py_BuildValue("D", c2py_cplx(valueZ));
     }
-    Py_complex cplxres = c2py_cplx(bh);
-    PyObject *res = Py_BuildValue("D", &cplxres);
+
+    if(numArrs > 0) {
+        int       ndimZ  = PyArray_NDIM( (PyArrayObject*)array_cplx[0]);
+        npy_intp* shapeZ = PyArray_SHAPE((PyArrayObject*)array_cplx[0]);
+        npy_intp  flatDims[1];
+        flatDims[0]      = PyArray_SIZE( (PyArrayObject*)array_cplx[0]);
+        int       a_len  = (int) flatDims[0];
+        std::complex<double> valuesZ[a_len];
+        if(ndimZ==1) {
+            py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesZ);
+        } else {
+            PyArray_Dims flatShp = { nullptr, 0 };
+            flatShp.ptr = flatDims;
+            flatShp.len = 1;
+            py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesZ);
+        }
+        for(int i=0; i<a_len; i++) {
+            zbesh(valuesZ[i].real(),valuesZ[i].imag(), valueV, 1+valueExpScl, valueM, 1, bhr,bhi, &nz, &idum, &valueDebug);
+            if(nz>=0 && (idum==0 || idum==3)) {
+                valuesZ[i] = std::complex<double>(bhr[0],bhi[0]);
+            } else {
+                valuesZ[i] = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+            }
+        }
+        if(ndimZ==1) {
+            res = Py_BuildValue("O", c2py_cplxarr(a_len, valuesZ));
+        } else {
+            PyArray_Dims outShp = { nullptr, 0 };
+            outShp.ptr = shapeZ;
+            outShp.len = ndimZ;
+            res = Py_BuildValue("O", PyArray_Newshape(c2py_cplxarr(a_len, valuesZ), &outShp, NPY_CORDER));
+        }
+    }
+
     return res;
 }
 
@@ -1332,9 +1531,9 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
     int dtype = -1;
 
     if(PyArg_ParseTupleAndKeywords(args, kwds, "DdDdd|dpp", kwlist, &valueNpMcore, &valueDcore, &valueNpMshell, &valueDshell, &valueW, &valueNmedium, &valueCSS, &valueDict)) {
-    	numArrs = 0;
+        numArrs = 0;
     } else {
-    	PyErr_Clear();
+        PyErr_Clear();
     }
 
     if(numArrs<0) {
