@@ -49,7 +49,7 @@ They are calculated according to the formulae after Gustav Mie and related work 
 
 .. math:: b_n ~=~ \sum_{n=1}^{\infty} \frac{[m x j_n(m x)]' j_n(x) \,-\, [x j_n(x)]' j_n(m x)}{[m x h_n^1(m x)]' j_n(x) \,-\, [x j_n(x)]' h_n^1(m x)}
 
-They take heavily use of the `spherical bessel functions <./bessel.html>`__ :math:`j_n()` and :math:`h_n^1()` after mathematician Friedrich Wilhelm Bessel.
+They take heavily use of the spherical :any:`bessel functions <./bessel>` :math:`j_n()` and :math:`h_n^1()` after mathematician Friedrich Wilhelm Bessel.
 
 .. code-block:: ipython3
 
