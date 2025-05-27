@@ -36,13 +36,14 @@ In atmospheric science, astronomy and similar areas, the optical properties of p
 The simplest assumption for these particles is that they are spherical, which leads to the mathematical fully derived theorie of Mie.
 The corresponding formulae and first computational algorithms were improved and published by @BH1983.
 
-ARTmie uses these formulaes to calculate extinction, scattering, absorption and backscattering efficiencies as well as cross sections by implementing and porting of the relevant functions [@Maetzler2002matlab] from Matlab and the bessel functions [@Amos1986] from Fortran 77 to C++.
+ARTmie uses these formulae to calculate extinction, scattering, absorption and backscattering efficiencies as well as cross sections by implementing and porting of the relevant functions [@Maetzler2002matlab] from Matlab and the bessel functions [@Amos1986] from Fortran 77 to C++.
 
 ARTmie was developed with focus on speed, especially for particle size distribution and scattering angle weighted backscattering efficiency. ARTmie mainly gains its speed not only by using a C++ backend but also optimizing the amount of necessary calculation when computing combined informations, e.g. for log-normal particle size distributions.
 
 
 # Statement of need
-A lot of research in physics and atmospheric and astronomical science depends on the optical properties of aerosols. The more variability in the constituents and the number of particles there is, the more calculations are needed. Due to porting of the code to C++, ARTmie is capable to do these calculations at a speed that pure Python code can never achieve.
+
+A lot of research in physics and atmospheric and astronomical science depends on the optical properties of aerosols. The more variability in the constituents and the number of particles there is, the more calculations are needed.  Due to porting of the code to C++, ARTmie is capable to do these calculations at a speed that pure Python code can never achieve.
 
 ARTmie has the ability to calculate the backscatter efficiency by weighted averaging over the total backward scattering angles, as used in lidar-based measurement systems.
 
@@ -52,18 +53,22 @@ Furthermore, ARTmie has been used recently to improve the ICON-ART module of the
 # State of the field
 
 Several other python libraries exist to calculate Mie scattering.
-1. PyMieScatt [@swPyMieScatt] :
 
-   This package provides all the functions (with similar names) as ARTmie does and inverse function which are not planned for ARTmie (at the moment).
+1. Miepython [@swMiepython] :
 
-   PyMieScatt is written in pure Python, so ARTmie is way faster, especially for calculation of combined optical properties and those of partical size distributions.
-
-2. PyMieSim [@articlePyMieSim] :
-
-   This package is also written in C++
-
-3. Miepython [@swMiepython] :
    ...
+
+2. PyMieScatt [@swPyMieScatt] :
+
+   PyMieScatt provides all the functions (with similar names) as ARTmie does. On top of that, this package has inverse function for retrieving the refractive index from measured Mie efficiencies, which is not planned for ARTmie (at the moment).
+
+   PyMieScatt is written in pure Python too, so ARTmie is way faster, especially for calculation of combined optical properties and those of partical size distributions.
+
+3. PyMieSim [@articlePyMieSim] :
+
+   Like ARTmie, PyMieSim is written in C++. It uses a modular approach with more flexibilities and possibilities. This makes it on the other hand less practical for easy Mie efficiency calculations.
+
+   It is also slower in calculating Mie efficiencies of coated spheres than ARTmie is.
 
 
 # Acknowledgement
