@@ -89,7 +89,7 @@ Those can be calculated as follows from the external field coefficients :math:`a
     q_{back}  & =~ \frac{1}{x^2} \left| {\sum_{n=1}^{\infty} (2n+1) (-1)^n (a_n-b_n)} \right|^2 \\[1ex]
     q_{ratio} & =~ \frac{q_{back}}{q_{sca}} \\[2ex]
     q_{pr}    & =~ q_{ext} \,-\, g q_{sca} \\[2ex]
-    g         & =~ \frac{x^2}{q_{sca}} \left[ \sum_{n=1}^{\infty} \left( \frac{n^2+2n}{n+1}\left({a_n}{a_{n+1}^*}+{b_n}{b_{n+1}^*}\right) + \frac{2n+1}{n^2+n}\Re({a_n}{b_n^*}) \right) \right]
+    g         & =~ \frac{4}{x^2 q_{sca}} \left[ \sum_{n=1}^{\infty} \left( \frac{n^2+2n}{n+1}\left({a_n}{a_{n+1}^*}+{b_n}{b_{n+1}^*}\right) + \frac{2n+1}{n^2+n}\Re({a_n}{b_n^*}) \right) \right]
     \end{align}
 
 where * denotes complex conjugates.
