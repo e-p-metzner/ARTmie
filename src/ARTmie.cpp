@@ -259,7 +259,6 @@ PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
         numArrs = 0;
     } else {
         PyErr_Clear();
-        return NULL;
     }
 
     if(numArrs < 0) {
@@ -365,7 +364,6 @@ PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
         numArrs = 0;
     } else {
         PyErr_Clear();
-        return NULL;
     }
 
     if(numArrs < 0) {
