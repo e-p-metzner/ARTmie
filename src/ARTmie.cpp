@@ -131,10 +131,9 @@ std::complex<double> py2c_cplx(Py_complex np_cplx) {
     return c_cplx;
 }
 Py_complex c2py_cplx(std::complex<double> c_cplx) {
-    std::complex<double> temp = std::complex<double>(c_cplx.real(), c_cplx.imag());
     Py_complex np_cplx;
-    np_cplx.real = temp.real();
-    np_cplx.imag = temp.imag();
+    np_cplx.real = c_cplx.real();
+    np_cplx.imag = c_cplx.imag();
     return np_cplx;
 }
 Py_complex nanPyCplx() {
@@ -206,8 +205,8 @@ const char* shape2str(int ndim, npy_intp* shape) {
 }
 
 
-
 // **** Gamma function
+
 #define gm_docstring "gamma(x)\n\n\
 Calculates the gamma function\n\n\
 Parameters\n----------\n\
@@ -230,6 +229,7 @@ PyObject* mie_art_gamma(PyObject *self, PyObject *args, PyObject *kwds) {
     PyObject *res = Py_BuildValue("d",0.0+ std::exp(dgamln(valueX)));
     return res;
 }
+
 
 // **** Bessel functions
 
@@ -293,14 +293,15 @@ PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
 
     PyObject* res = NULL;
     if(numArrs == 0) {
-        zbesj(valueNpZ.real, valueNpZ.imag, valueV, 1+valueExpScl, 1, bjr, bji, &nz, &idum, &valueDebug);
-        std::complex<double> valueZ;
+        std::complex<double> valueZ = py2c_cplx(valueNpZ);
+        PySys_WriteStdout("Bessel J: nu=%f  z=%f+i*%f  expscl=%i\n",valueV,valueZ.real(),valueZ.imag(),valueExpScl);
+        zbesj(valueZ.real(), valueZ.imag(), valueV, 1+valueExpScl, 1, bjr, bji, &nz, &idum, &valueDebug);
         if(nz>=0 && (idum==0 || idum==3)) {
             valueZ = std::complex<double>(bjr[0],bji[0]);
         } else {
             valueZ = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
         }
-        res = Py_BuildValue("D", c2py_cplx(valueZ));
+        res = Py_BuildValue("O", PyComplex_FromDoubles(valueZ.real(),valueZ.imag()));
     }
 
     if(numArrs > 0) {
@@ -319,6 +320,7 @@ PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
             py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array_cplx[0], &flatShp, NPY_CORDER), valuesZ);
         }
         for(int i=0; i<a_len; i++) {
+            PySys_WriteStdout("Bessel J: nu=%f  z=%f+i*%f  expscl=%i\n",valueV,valuesZ[i].real(),valuesZ[i].imag(),valueExpScl);
             zbesj(valuesZ[i].real(), valuesZ[i].imag(), valueV, 1+valueExpScl, 1, bjr, bji, &nz, &idum, &valueDebug);
             if(nz>=0 && (idum==0 || idum==3)) {
                 valuesZ[i] = std::complex<double>(bjr[0],bji[0]);
@@ -406,8 +408,7 @@ PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
         } else {
             valueZ = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
         }
-        Py_complex cplxres = c2py_cplx(valueZ);
-        res = Py_BuildValue("D", c2py_cplx(valueZ));
+        res = Py_BuildValue("O", PyComplex_FromDoubles(valueZ.real(),valueZ.imag()));
     }
 
     if(numArrs > 0) {
@@ -507,8 +508,7 @@ PyObject* mie_art_hankel(PyObject *self, PyObject *args, PyObject *kwds) {
         } else {
             valueZ = std::complex<double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
         }
-        Py_complex cplxres = c2py_cplx(valueZ);
-        res = Py_BuildValue("D", c2py_cplx(valueZ));
+        res = Py_BuildValue("O", PyComplex_FromDoubles(valueZ.real(),valueZ.imag()));
     }
 
     if(numArrs > 0) {
@@ -581,8 +581,7 @@ PyObject* mie_art_besseli(PyObject *self, PyObject *args, PyObject *kwds) {
     if(nz>=0 && (idum==0 || idum==3)) {
         bi = std::complex<double>(bir[0], bii[0]);
     }
-    Py_complex cplxres = c2py_cplx(bi);
-    PyObject *res = Py_BuildValue("D", &cplxres);
+    PyObject *res = Py_BuildValue("O", PyComplex_FromDoubles(bi.real(),bi.imag()));
     return res;
 }
 #define bk_docstring "besselk(v, z, m, /, es=False)\n\n\
@@ -619,8 +618,7 @@ PyObject* mie_art_besselk(PyObject *self, PyObject *args, PyObject *kwds) {
     if(nz>=0 && (idum==0 || idum==3)) {
         bk = std::complex<double>(bkr[0], bki[0]);
     }
-    Py_complex cplxres = c2py_cplx(bk);
-    PyObject *res = Py_BuildValue("D", &cplxres);
+    PyObject *res = Py_BuildValue("O", PyComplex_FromDoubles(bk.real(),bk.imag()));
     return res;
 }
 
@@ -721,9 +719,6 @@ PyObject* mie_art_airy(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     return res;
 }
-
-
-
 
 
 // **** Mie field coefficients
@@ -1870,7 +1865,7 @@ void LogNormal_pdf_dexp(int arrlen, double diams[], double mean_diam, double std
         dexp[idx] = std::exp(-lnx*lnx/lgg2) / (diams[idx]*constant);
     }
 }
-void createLogNormalDistribution(double d_gn, double sigma_g, double fcoat, double res, double dens, int norm2core, int norm2volume, double *x_range, double *y_range, double *crossArea, double *normWeight) {
+void createLogNormalDistribution(double d_gn, double sigma_g, double fcoat, double res, double dens, int norm2core, int norm2volume, double *x_range, double *y_range, double *pdf, double *crossArea, double *normWeight) {
     //Helper function: createLogNormalDistribution
     //Input
     //  d_gn, sigma_g = cound median diameter, geometric standart deviation
@@ -1890,7 +1885,6 @@ void createLogNormalDistribution(double d_gn, double sigma_g, double fcoat, doub
         y_range[idx] = cfp1*x_range[idx];
     }
 
-    double pdf[dcount];
     double dexp[dcount];
     LogNormal_pdf_dexp(dcount, x_range, d_gn, sigma_g, pdf, dexp);
 
@@ -1945,14 +1939,16 @@ PyObject* mie_art_createLgNormDist(PyObject *self, PyObject *args, PyObject *kwd
     int dcount = calc_diam_count(valueMu, valueStd, valueRes);
     double core_diams[dcount];
     double shell_diams[dcount];
+    double pdf[dcount];
     double crossArea[dcount];
     double normWeight;
     double density = 1.0;
-    createLogNormalDistribution(valueMu, valueStd, valueFcoat, valueRes, density, valueN2core, valueN2vol, core_diams, shell_diams, crossArea, &normWeight);
+    createLogNormalDistribution(valueMu, valueStd, valueFcoat, valueRes, density, valueN2core, valueN2vol, core_diams, shell_diams, pdf, crossArea, &normWeight);
 
-    PyObject *res = Py_BuildValue("OOOd",
+    PyObject *res = Py_BuildValue("OOOOd",
                                   c2py_dblarr(dcount, core_diams),
                                   c2py_dblarr(dcount, shell_diams),
+                                  c2py_dblarr(dcount, pdf),
                                   c2py_dblarr(dcount, crossArea),
                                   normWeight);
     return res;
@@ -2149,6 +2145,7 @@ struct Mie_tots {
     double babs;
     double bback;
     double bssa;
+    double bratio;
     double basym;
 //    int arr_len;
 //    double *ext_arr; //arrays have to be deleted by the caller of size_distribution_optics
@@ -2182,9 +2179,10 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     int dcount = calc_diam_count(mean_diam, stdev_diam, res);
     double core_diams[dcount];
     double shell_diams[dcount];
+    double pdf[dcount];
     double crossArea[dcount];
     double normWeight;
-    createLogNormalDistribution(mean_diam, stdev_diam, fcoating, res, dens, effcore, norm2vol, core_diams, shell_diams, crossArea, &normWeight);
+    createLogNormalDistribution(mean_diam, stdev_diam, fcoating, res, dens, effcore, norm2vol, core_diams, shell_diams, pdf, crossArea, &normWeight);
     double max_shell_diam = 0.0;
     int idx;
     for(idx=0; idx<dcount; idx++) {
@@ -2216,6 +2214,7 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     mie_tots->bback = 0.0;
     mie_tots->bssa = 0.0;
     mie_tots->basym = 0.0;
+    mie_tots->bratio = 0.0;
 //    mie_tots->arr_len = dcount;
 //    Mie_tots mie_tots = {
 //        0.0,
@@ -2256,6 +2255,7 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
             mie_tots->bext  += one_result.qext * crossArea[idx];
             mie_tots->bsca  += one_result.qsca * crossArea[idx];
             mie_tots->babs  += one_result.qabs * crossArea[idx];
+            mie_tots->bratio += one_result.qratio * crossArea[idx];
             mie_tots->bback += backscat * crossArea[idx];
             mie_tots->basym += one_result.qg * one_result.qsca * crossArea[idx];
         } catch(const std::exception& e) {
@@ -2264,6 +2264,7 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     }
 //    mie_tots->arr_len = dcount;
     mie_tots->basym /= mie_tots->bsca;
+    mie_tots->bratio /= mie_tots->bsca;
     mie_tots->bssa   = mie_tots->bsca / mie_tots->bext;
     mie_tots->bext  *= normWeight;
     mie_tots->bsca  *= normWeight;
@@ -2369,12 +2370,13 @@ PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
 //        "Backscattering Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.bck_arr),
 //        "Asymmetry Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.g_arr)
 //    );
-    PyObject *res = Py_BuildValue("{s:d,s:d,s:d,s:d,s:d,s:d}",
+    PyObject *res = Py_BuildValue("{s:d,s:d,s:d,s:d,s:d,s:d,s:d}",
         "Extinction", 0.0+mie_tots->bext,
         "Scattering", 0.0+mie_tots->bsca,
         "Absorption", 0.0+mie_tots->babs,
         "Backscattering", 0.0+mie_tots->bback,
         "SSA", 0.0+mie_tots->bssa,
+        "BackscatterRatio", 0.0+mie_tots->bratio,
         "Asymmetry", 0.0+mie_tots->basym
     );
 
@@ -2414,9 +2416,10 @@ void size_distribution_phase_function(std::complex<double> m_core, double mean_d
     int dcount = calc_diam_count(mean_diam, stdev_diam, res);
     double core_diams[dcount];
     double shell_diams[dcount];
+    double pdf[dcount];
     double crossArea[dcount];
     double normWeight;
-    createLogNormalDistribution(mean_diam, stdev_diam, fcoating, res, dens, effcore, norm2vol, core_diams, shell_diams, crossArea, &normWeight);
+    createLogNormalDistribution(mean_diam, stdev_diam, fcoating, res, dens, effcore, norm2vol, core_diams, shell_diams, pdf, crossArea, &normWeight);
     double max_shell_diam = 0.0;
     int idx, a;
     for(idx=0; idx<dcount; idx++) {
