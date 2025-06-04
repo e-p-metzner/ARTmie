@@ -12,9 +12,9 @@ Getting *ARTmie*
 from the Python Package Index (PyPI)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
+.. code-block:: shell
 
-	pip install ARTmie
+    python -m pip install ARTmie
 
 
 from source
@@ -31,7 +31,7 @@ from source
    
 5. Install it with the following command:
    
-   .. code-block:: python
+   .. code-block:: shell
 
        python -m pip install .
 
@@ -43,15 +43,14 @@ Testing
 
 Make sure, you have the latest version of Pytest:
 
-.. code-block:: python
+.. code-block:: shell
 
     pip --update pytest
 
-Then you can run the testsuite with the following commands:
+Currently the tests can be run from the command line:
 
-.. code-block:: python
+.. code-block:: shell
 
-    import pytest
-    test ARTmie
+    python tests/test_artmie.py
 
 
