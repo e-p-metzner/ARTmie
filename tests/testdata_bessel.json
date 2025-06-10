@@ -1,8 +1,8 @@
 {
     "__author": "Enrico P. Metzner",
-    "__comment": "",
     "bessel": {
         "__comment": "reference values are calculated with WolframAlpha: BesselJ(nu,z), BesselY(nu,z), HankelH1(nu,z)",
+        "__comment2": "complex numbers are represented as list with to elements: z=[re,im] -> z=re+1j*im",
         "J": [
             { "nu": 0.0,  "z": [0.0000,0.0000], "res": [1.0,0.0] },
             { "nu": 0.0,  "z": [1.0000,0.0000], "res": [0.76519768655796655145,0.0] },

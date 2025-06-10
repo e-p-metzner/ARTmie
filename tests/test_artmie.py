@@ -13,13 +13,15 @@ def load_test_data(file_name,inner_path):
     jsonfile = os.path.join(folder, file_name)
     with open(jsonfile) as file:
         content = json.load(file)
-        for token in inner_path.split(','):
+        tokens = inner_path.split(',')
+        for token in tokens:
             content = content[token]
-        if 'bessel' in inner_path.split(','):
+        if 'bessel' in tokens:
             print('uses bessel test data')
             data = [ (item['nu'],item['z'][0]+item['z'][1]*1j,item['res'][0]+item['res'][1]*1j) for item in content ]
             return data
-        return content
+        data = [ item for item in content ]
+        return data
 
 
 @pytest.mark.parametrize("nu,z,expectation", load_test_data('testdata_bessel.json','bessel,J'))
