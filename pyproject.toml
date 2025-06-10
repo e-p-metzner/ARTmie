@@ -26,3 +26,10 @@ classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3"
 ]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

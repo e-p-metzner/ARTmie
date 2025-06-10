@@ -687,8 +687,7 @@ PyObject* mie_art_airy(PyObject *self, PyObject *args, PyObject *kwds) {
         if(nz>=0 && (idum==0 || idum==3)) {
             ai = std::complex<double>(air[0], aii[0]);
         }
-        Py_complex cplxres = c2py_cplx(ai);
-        res = Py_BuildValue("D", &cplxres);
+        res = Py_BuildValue("O", PyComplex_FromDoubles(ai.real(),ai.imag()));
     }
     if(numArrs==1) {
         npy_intp flatDims[1];
@@ -2144,6 +2143,7 @@ struct Mie_tots {
     double bsca;
     double babs;
     double bback;
+    double bawbsc;
     double bssa;
     double bratio;
     double basym;
@@ -2370,11 +2370,12 @@ PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
 //        "Backscattering Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.bck_arr),
 //        "Asymmetry Coefficients", c2py_dblarr(mie_tots.arr_len, mie_tots.g_arr)
 //    );
-    PyObject *res = Py_BuildValue("{s:d,s:d,s:d,s:d,s:d,s:d,s:d}",
+    PyObject *res = Py_BuildValue("{s:d,s:d,s:d,s:d,s:d,s:d,s:d,s:d}",
         "Extinction", 0.0+mie_tots->bext,
         "Scattering", 0.0+mie_tots->bsca,
         "Absorption", 0.0+mie_tots->babs,
         "Backscattering", 0.0+mie_tots->bback,
+        "AngWgtBackscat", 0.0+mie_tots->bawbsc,
         "SSA", 0.0+mie_tots->bssa,
         "BackscatterRatio", 0.0+mie_tots->bratio,
         "Asymmetry", 0.0+mie_tots->basym
@@ -2433,7 +2434,7 @@ void size_distribution_phase_function(std::complex<double> m_core, double mean_d
 
     double maxy = _PI_*max_shell_diam/wavelength;
     int nmax = calc_nmax(maxy);
-    std::complex<double> maxmy = m_core*maxy;
+    //std::complex<double> maxmy = m_core*maxy;
     //PySys_WriteStdout("%12.6f+i*%12.6f\n",maxmy.real(),maxmy.imag());
     int arr_len = nang*nmax;
     double *pin = new double[arr_len];

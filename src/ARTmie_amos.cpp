@@ -1392,6 +1392,10 @@ void zseri(double zr, double zi, double fnu, int kode, int n, double *YR, double
 	double wi[2], wr[2];
 	int    i, ib, idum, iflag, il, k, l, m, nn, nw;
 
+	//initialize, so the compiler is happy
+	nn = 0;
+	//end of extra initialization
+
 	*NZ = 0;
 	az = zabs(zr,zi);
 	if(az==0.0) goto SE160;
@@ -1745,6 +1749,12 @@ void zbknu(double zr, double zi, double fnu, int kode, int n, double *YR, double
 	double bry[3], csrr[3], cssr[3], cyi[2], cyr[2];
 	int    i, ic, idum, iflag, inu, inub, j, k, kflag, kk, koded, nw;
 
+	//initialize, so the compiler is happy
+	r1 = 0.0;
+	ckr = 0.0;
+	cki = 0.0;
+	//end of extra initialization
+
 	caz = zabs(zr,zi);
 	csclr = 1.0/tol;
 	crscr = tol;
@@ -1981,8 +1991,7 @@ BK140:
 		fhs = fhs + fk + fk;
 		fk = fk + CONER;
 		str = std::abs(p2r)*fk;
-		//if(*debug) PySys_WriteStdout("[DEBUG] ZBKNU conv test: etest<str?\n    I    =%d\n    etest=%16.8e\n    str  =%16.8e\n",\
-		//                             I, ETEST, STR);
+		//if(*debug) PySys_WriteStdout("[DEBUG] ZBKNU conv test: etest<str?\n    I    =%d\n    etest=%16.8e\n    str  =%16.8e\n", I, ETEST, STR);
 		if(etest<str) goto BK160;
 	} //CONTINUE 150
 	if(*debug) PySys_WriteStdout("[DEBUG] ZBKNU: forward recurrence did not converge.\n");
@@ -2721,6 +2730,12 @@ void zunk1(double zr, double zi, double fnu, int kode, int mr, int n, double *YR
 	int    i, ib, ic, iflag, ifn, il, initd, inu, ipard, iuf, j, k, kdflg, kflag, kk, m, nw;
 	int    init[2];
 
+	//initialize, so the compiler is happy
+	iflag = 1;
+	kflag = 1;
+	fn = 0.0;
+	//end of extra initialization
+
 	kdflg = 1;
 	*NZ = 0;
 //C-----------------------------------------------------------------------
@@ -3126,6 +3141,12 @@ void zunk2(double zr, double zi, double fnu, int kode, int mr, int n, double *YR
 	double argi[2], argr[2], asumi[2], asumr[2], bry[3], bsumi[2], bsumr[2], cipi[4], cipr[4], csrr[3], \
 	       cssr[3], cyi[2], cyr[2], phii[2], phir[2], zeta1i[2], zeta1r[2], zeta2i[2], zeta2r[2];
 	int    i, ib, ic, idum, iflag, ifn, il, in, inu, ipard, iuf, j, k, kdflg, kflag, kk, nai, ndai, nw;
+
+	//initialize, so the compiler is happy
+	iflag = 1;
+	kflag = 1;
+	fn = 0.0;
+	//end of extra initialization
 
 	cr1r = 1.0;
 	cr1i = RT3;
@@ -4337,6 +4358,11 @@ void zacon(double zr, double zi, double fnu, int kode, int mr, int n, double *YR
 	       sti, str, s1i, s1r, s2i, s2r, yy, zni, znr;
 	double bry[3], csrr[3], cssr[3], cyi[2], cyr[2];
 	int    i, inu, iuf, kflag, nn, nw;
+
+	//initialize, so the compiler is happy
+	sc2r = 0.0;
+	sc2i = 0.0;
+	//end of extra initialization
 
 	*NZ = 0;
 	znr = -zr;

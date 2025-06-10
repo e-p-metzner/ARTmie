@@ -14,7 +14,7 @@ if __name__ == "__main__":
             Extension(
                 'ARTmie',
                 sources=['src/ARTmie.cpp'],
-                include_dirs=[np_inc]
+                include_dirs=[np_inc,'./src']
             ),
         ]
     )
