@@ -2,9 +2,13 @@
 
 from setuptools import setup, Extension
 import numpy as np
+import os
 
 if __name__ == "__main__":
+    cwd = os.getcwd()
+    print('pwd   ',cwd)
     np_inc = np.get_include()
+    print('numpy ',np_inc)
     setup(
         name="ARTmie",
         version="0.1.1",
@@ -14,7 +18,7 @@ if __name__ == "__main__":
             Extension(
                 'ARTmie',
                 sources=['src/ARTmie.cpp'],
-                include_dirs=[np_inc,'./src']
+                include_dirs=[np_inc,cwd+'/src']
             ),
         ]
     )
