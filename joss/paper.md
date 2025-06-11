@@ -54,7 +54,7 @@ There are many Mie scattering libraries available in a variety of programming la
 
    PyMieScatt is a feature-rich Python library that supports homogeneous and single-coated spheres. It also offers additional tools for data analysis, angular scattering and inversion methods. However, as with miepython, it is implemented entirely in Python, which makes it significantly slower than ARTmie for coated particles and polydisperse systems, where the computational demand is higher.
 
-3. PyMieSim [@articlePyMieSim,@swPyMieSim] :
+3. PyMieSim [@articlePyMieSim; @swPyMieSim] :
 
    Designed for simulating optical systems, PyMieSim provides a modular interface for defining sources, detectors and particle configurations. It offers support for both uncoated and single-coated spheres. Although it uses a C++ backend to optimise performance, the modular design introduces additional setup overhead. PyMieSim is best suited to integrating Mie scattering into broader optical modelling workflows, but does not yet support polydisperse particles.
 
