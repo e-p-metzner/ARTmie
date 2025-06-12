@@ -5,7 +5,7 @@
 #include <numpy/npy_3kcompat.h>
 #include <numpy/npy_math.h>
 #include <string>
-#include "ARTmie_amos.cpp"
+#include "cpp_amos/ARTmie_amos.cpp"
 
 
 

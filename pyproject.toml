@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ARTmie"
-version = "0.1.1"
+version = "0.1.1-b021"
 dependencies = [
   "numpy>=1.15",
 ]
@@ -26,6 +26,9 @@ classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3"
 ]
+
+[tool.setuptools]
+package-data = { "cpp_amos" = ["*.cpp"] }
 
 [tool.pytest.ini_options]
 minversion = "6.0"
