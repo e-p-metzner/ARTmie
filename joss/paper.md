@@ -60,6 +60,6 @@ There are many Mie scattering libraries available in a variety of programming la
 
 
 # Acknowledgement
-This work was done during the funding by ...
+This work was done during the funding by the Deutsche Forschungsgemeinschaft (DFG) under the project FE.5250.0010.7772.
 
 # References
