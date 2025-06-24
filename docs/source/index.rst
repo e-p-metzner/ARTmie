@@ -29,4 +29,5 @@ The Code was mainly ported from Matlab and Fortran to C++.
    Particle distributions <psd.rst>
    Mathematical accuracy <bessel.rst>
    Installation and tests <install.rst>
+   Changelog <changes.rst>
    API Reference <api.rst>

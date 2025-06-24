@@ -51,4 +51,5 @@ autodoc_inherit_docstrings = True
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinxdoc' #choose from [(default)'alabaster', 'classic', 'nature', 'sphinxdoc', 'agogo', ...]
+html_theme_options = { 'sidebarwidth': 350 }
 html_static_path = ['_static']
