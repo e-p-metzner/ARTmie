@@ -835,7 +835,10 @@ void miecoated_ab(std::complex<double> m_core, double x_core, std::complex<doubl
     dnu[nmx-1] = std::complex<double>(0.0,0.0);
     dnv[nmx-1] = std::complex<double>(0.0,0.0);
     dnw[nmx-1] = std::complex<double>(0.0,0.0);
-    for(idx=nmx-2; idx>=0; idx--) {
+    dnu[nmx-2] = std::complex<double>(0.0,0.0);
+    dnv[nmx-2] = std::complex<double>(0.0,0.0);
+    dnw[nmx-2] = std::complex<double>(0.0,0.0);
+    for(idx=nmx-3; idx>=0; idx--) {
         std::complex<double> invU = (2.0+idx)/u;
         std::complex<double> invV = (2.0+idx)/v;
         std::complex<double> invW = (2.0+idx)/w;
@@ -2174,7 +2177,13 @@ mie_tots : dictionary\n    contains the Mie efficiencies of a particle size dist
 Important Note\n--------------\n\
 The size distribution is currently hardcoded to be log-normal. Other distributions may follow in future versions.\n\
 1dimensional arguments for sizepar1 and sizepar2 are not implemented yet, they will come in version 0.2.0"
-void size_distribution_optics(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, Mie_tots *mie_tots) {
+void size_distribution_optics(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, int debug, Mie_tots *mie_tots) {
+    if(debug) {
+        PySys_WriteStdout("[DEBUG] SDO-Input: m_core=%.7f+i*%14.7e  m_shell=%.7f+i*%14.7e  psd=%.1f+/-%4f  fcoat=%.4f  wl=%14.7e\n",
+            m_core.real(),m_core.imag(),m_shell.real(),m_shell.imag(),mean_diam,stdev_diam,fcoating,wavelength);
+        PySys_WriteStdout("[DEBUG]            resolution=%.7f  density=%.7f  effcore=%s  norm2vol=%s\n",
+            resolution,dens,effcore?"true":"false",norm2vol?"true":"false");
+    }
     double res = 1.0/resolution;
     int dcount = calc_diam_count(mean_diam, stdev_diam, res);
     double core_diams[dcount];
@@ -2243,33 +2252,40 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
             }
 
             MieResult one_result = ab2mie(nmax2, an, bn, wavelength, shell_diams[idx], effcore);
-    //        PySys_WriteStdout("    one_res{ qext=%.6f, qsca=%.6f, qabs=%.6f, qback=%.6f, ... }\n",
-    //                  one_result.qext,one_result.qsca,one_result.qabs,one_result.qback);
             double backscat = calcBackscattering(yval, nmax2, an, bn, nang, theta, dtheta, scatwgts, nmax, pin, taun);
+            if(debug) {
+                PySys_WriteStdout("[DEBUG]    (cdia=%.2f) -> one_res{ qext=%.6f, qsca=%.6f, qabs=%.6f, qratio=%.6f, qg=%.6f, ... } + awbsc=%.6e\n",
+                                  core_diams[idx], one_result.qext,one_result.qsca,one_result.qabs,one_result.qratio,one_result.qg,backscat);
+            }
     //        mie_tots.ext_arr[idx] = one_result.qext;
     //        mie_tots.sca_arr[idx] = one_result.qsca;
     //        mie_tots.abs_arr[idx] = one_result.qabs;
     //        mie_tots.bck_arr[idx] = backscat;
     //        mie_tots.g_arr[idx] = one_result.qg;
 
-            mie_tots->bext  += one_result.qext * crossArea[idx];
-            mie_tots->bsca  += one_result.qsca * crossArea[idx];
-            mie_tots->babs  += one_result.qabs * crossArea[idx];
-            mie_tots->bratio += one_result.qratio * crossArea[idx];
-            mie_tots->bback += backscat * crossArea[idx];
-            mie_tots->basym += one_result.qg * one_result.qsca * crossArea[idx];
+            mie_tots->bext   += one_result.qext * crossArea[idx];
+            mie_tots->bsca   += one_result.qsca * crossArea[idx];
+            mie_tots->babs   += one_result.qabs * crossArea[idx];
+            mie_tots->bback  += one_result.qback * crossArea[idx];
+            mie_tots->bawbsc += backscat * crossArea[idx];
+            mie_tots->basym  += one_result.qg * one_result.qsca * crossArea[idx];
         } catch(const std::exception& e) {
             PySys_WriteStdout("[exception] %s\n", e.what());
         }
     }
+    if(debug) {
+        PySys_WriteStdout("[DEBUG]    ext=%.6e, sca=%.6e, abs=%.6e, asy=%.6e, normWeight=%.6e\n",
+                          mie_tots->bext, mie_tots->bsca, mie_tots->babs, mie_tots->basym, normWeight);
+    }
 //    mie_tots->arr_len = dcount;
-    mie_tots->basym /= mie_tots->bsca;
-    mie_tots->bratio /= mie_tots->bsca;
-    mie_tots->bssa   = mie_tots->bsca / mie_tots->bext;
-    mie_tots->bext  *= normWeight;
-    mie_tots->bsca  *= normWeight;
-    mie_tots->babs  *= normWeight;
-    mie_tots->bback *= normWeight;
+    mie_tots->basym  /= mie_tots->bsca;
+    mie_tots->bratio  = mie_tots->bback / mie_tots->bsca;
+    mie_tots->bssa    = mie_tots->bsca / mie_tots->bext;
+    mie_tots->bext   *= normWeight;
+    mie_tots->bsca   *= normWeight;
+    mie_tots->babs   *= normWeight;
+    mie_tots->bback  *= normWeight;
+    mie_tots->bawbsc *= normWeight;
 
     delete[] pin;
     delete[] taun;
@@ -2277,7 +2293,7 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     delete[] bn;
 }
 PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = { (char*)"m", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", NULL };
+    static char *kwlist[] = { (char*)"m", (char*)"sizepar1", (char*)"sizepar2", (char*)"wavelength", (char*)"nMedium", (char*)"fcoat", (char*)"mc", (char*)"density", (char*)"resolution", (char*)"effcore", (char*)"normalized", (char*)"debug", NULL };
 
     Py_complex valueNpMcore;
     Py_complex valueNpMshell = nanPyCplx();
@@ -2290,15 +2306,16 @@ PyObject* mie_art_sdo(PyObject *self, PyObject *args, PyObject *kwds) {
     double valueRes = 10.0;
     int valueN2core = true;
     int valueAsCrossSec = true;
+    int valueDebug = false;
     Mie_tots *mie_tots = new Mie_tots();
 //    int array_sizepar = 0;
-    if(PyArg_ParseTupleAndKeywords(args, kwds, "Dddd|ddDddpp", kwlist, &valueNpMcore, &valueDmu, &valueDstd, &valueW, &valueNmedium, &valueFcoat, &valueNpMshell, &valueDens, &valueRes, &valueN2core, &valueAsCrossSec)) {
+    if(PyArg_ParseTupleAndKeywords(args, kwds, "Dddd|ddDddppp", kwlist, &valueNpMcore, &valueDmu, &valueDstd, &valueW, &valueNmedium, &valueFcoat, &valueNpMshell, &valueDens, &valueRes, &valueN2core, &valueAsCrossSec, &valueDebug)) {
         std::complex<double> valueMcore  = py2c_cplx(valueNpMcore);
         std::complex<double> valueMshell = py2c_cplx(valueNpMshell);
         if(std::isnan(valueNpMshell.real) || std::isnan(valueNpMshell.imag)) {
             valueMshell = py2c_cplx(valueNpMcore);
         }
-        size_distribution_optics(valueMcore, valueDmu, valueDstd, valueW, valueMshell, valueFcoat, valueRes, valueDens, valueN2core, valueAsCrossSec, mie_tots);
+        size_distribution_optics(valueMcore, valueDmu, valueDstd, valueW, valueMshell, valueFcoat, valueRes, valueDens, valueN2core, valueAsCrossSec, valueDebug, mie_tots);
     } else {
 //        array_sizepar = 1;
 //        PyErr_Clear();
