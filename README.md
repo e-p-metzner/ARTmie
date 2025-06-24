@@ -115,10 +115,6 @@ Enrico P. Metzner
 
 ## Roadmap
 
-for version 0.1.2:
- - write documentation
- - create test-script to validate the installation
-
 for version 0.2.0:
  - 1dimensional arrays for input arguments sizepar1 & sizepar2 in Size\_Distribution\_Optics and Size\_Distribution\_Phase\_Function
  - Size\_Distribution\_Phase\_Function can also take an array of angles (theta) instead of predefined equally spaced 721 angles from 0° to 180°
