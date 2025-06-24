@@ -2,6 +2,8 @@
 
 ---
 
+[![Documentation Status](https://readthedocs.org/projects/ARTmie/badge/?version=latest)](https://artmie.readthedocs.io/en/latest/)
+
 `ARTmie` is a python library to calculate optical properties of spherical particles.<br>
 Those can be simple, single coated or drawn from a particle size distribution.<br>
 
