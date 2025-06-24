@@ -27,7 +27,7 @@
     "givenName": "Enrico"
   },
   "dateCreated": "2025-03-01",
-  "dateModified": "2025-04-29",
+  "dateModified": "2025-06-24",
   "datePublished": "2025-04-29",
   "description": "a fast python package for mie scattering and backscattering calculations of single particles, coated particles and log-normal distributed particles",
   "keywords": [
@@ -49,19 +49,19 @@
   ],
   "programmingLanguage": "Python 3",
   "softwareRequirements": "https://numpy.org/doc/2.0/index.html",
-  "version": "v0.1.1",
+  "version": "v0.1.2",
   "developmentStatus": "active",
-  "@id": "https://doi.org/10.35097/1pjymacb1k5s85ah",
+  "@id": "https://doi.org/10.35097/1e058ddcxvqhwtrr",
   "identifier": [
     {
       "@type": "PropertyValue",
       "propertyID": "DOI",
-      "value": "10.35097/1pjymacb1k5s85ah"
+      "value": "10.35097/1e058ddcxvqhwtrr"
     },
     {
       "@type": "PropertyValue",
       "propertyID": "RADAR",
-      "value": "1pjymacb1k5s85ah"
+      "value": "1e058ddcxvqhwtrr"
     }
   ]
 }
