@@ -1,5 +1,5 @@
 ---
-title: 'ARTmie: a fast python package for mie scattering and backscattering calculations of single particles, coated particles and log-normal distributed particles'
+title: 'AccelMie: Fast and Flexible Computation of Aerosol Optical Properties for Atmospheric Modeling and Remote Sensing'
 tags:
   - Python
   - Mie
@@ -24,27 +24,31 @@ bibliography: paper.bib
 
 # Summary
 
-In atmospheric science, astronomy and similar areas, the optical properties of particles such as dust, ash and cloud droplets are required when calculating interactions with radiation.
-The simplest assumption for these particles is that they are spherical, which leads to the fully derived mathematical theory of Mie.
-The corresponding formulae and first computational algorithms were improved and published by @BH1983.
+In atmospheric science, astronomy, and related fields, accurate computation of particle optical properties—such as mass extinction coefficient, single-scattering albedo, asymmetry factor, and phase function—is essential for modeling interactions with radiation. For spherical particles, these properties can be calculated using Mie theory, a well-established analytical solution. The foundational formulas and early computational algorithms for Mie scattering were first formalized and improved by @BH1983.
 
-ARTmie uses these formulae to calculate extinction, scattering, absorption and backscattering efficiencies as well as cross sections by implementing and porting of the relevant functions [@Maetzler2002matlab] from Matlab and the Bessel functions [@Amos1986] from Fortran 77 to C++.
+AccelMie implements these Mie formulas to compute extinction, scattering, absorption, and backscattering efficiencies, as well as the corresponding cross sections. It ports key routines from [@Maetzler2002matlab] (originally in MATLAB) and Bessel function implementations from [@Amos1986] (Fortran 77) into optimized C++.
 
-ARTmie was developed with a focus on speed, particularly with regard on particle size distributions and scattering angle weighted backscattering efficiency. ARTmie mainly gains its speed not only by using a C++ backend but also by optimizing the amount of necessary calculations when computing combined information, e.g. for log-normal particle size distributions.
+AccelMie was developed with a strong focus on computational speed, particularly for applications involving particle size distributions and angle-weighted backscattering efficiencies—important for lidar-based remote sensing. Its performance gains stem not only from the C++ backend, but also from algorithmic optimizations that reduce redundant calculations, especially when computing ensemble-averaged properties (e.g., for log-normal distributions).
+
+Compared to widely used Mie codes, AccelMie offers significantly faster execution, making it ideal for large-scale aerosol optical property calculations in atmospheric models, remote sensing applications, and the creation of high-resolution datasets for machine learning (ML). It supports standard optical property outputs and is designed for seamless integration into modeling pipelines or data-driven workflows.
 
 
 # Statement of need
 
-A lot of research in physics and atmospheric and astronomical science depends on the optical properties of aerosols. The greater the variability in the constituents and the larger the number of particles, the more calculations are required. ARTmie is capable to do these calculations at a speed that pure Python code can never achieve.
+Accurate calculation of aerosol optical properties is fundamental to research in physics, atmospheric science, and astronomy. As the complexity of aerosol mixtures increases and the number of particles considered grows, the computational demand for Mie scattering calculations becomes significant. Traditional Mie codes written in FORTRAN or Python often struggle with performance in such scenarios.
 
-In addition to the standard Mie efficiencies of extinction, scattering and absorption, ARTmie has the ability to calculate the backscatter efficiency by weighted averaging over the total backward scattering angles, as used in lidar-based measurement systems. Nevertheless, ARTmie is designed to be user-friendly with minimal preparation code required.
+AccelMie addresses this challenge by offering a fast and efficient solution for computing Mie scattering properties. It significantly outperforms pure Python implementations, making it suitable for large-scale applications, including high-resolution look-up table generation and ensemble simulations.
 
-Furthermore, ARTmie has recently been used to improve the ICON-ART module of the numerical weather and climate prediction model ICON [@Rieger2015; @icon202504] by recalculating all optical properties of aerosols regularly used by ICON-ART and incorporating additional aerosols with different coatings [@art202504].
+Beyond the standard Mie efficiencies for extinction, scattering, and absorption, AccelMie also computes the backscatter efficiency through a weighted average over the backward scattering angles—an important metric for interpreting lidar-based remote sensing measurements.
+
+Despite its performance-oriented design, AccelMie remains user-friendly and requires minimal setup, enabling easy integration into research workflows.
+
+AccelMie has already been successfully applied in the ICON-ART module of the ICON numerical weather and climate prediction model [@Rieger2015; @icon202504]. It was used to recalculate the optical properties of aerosols routinely used in ICON-ART and to extend the model with additional aerosol types and coating configurations [@art202504].
 
 
 # State of the field
 
-There are many Mie scattering libraries available in a variety of programming languages. Python is probably the most accessible programming language for quickly and easily analyzing and testing data within the scientific community. ARTmie is not the first Python module for Mie scattering; therefore, it will be compared to three other commonly used Python libraries:
+There are many Mie scattering libraries available in a variety of programming languages. Python is probably the most accessible programming language for quickly and easily analyzing and testing data within the scientific community. AccelMie is not the first Python module for Mie scattering; therefore, it will be compared to three other commonly used Python libraries:
 
 1. miepython [@swMiepython] :
 
@@ -52,7 +56,7 @@ There are many Mie scattering libraries available in a variety of programming la
 
 2. PyMieScatt [@articlePyMieScatt] :
 
-   PyMieScatt is a feature-rich Python library that supports homogeneous and single-coated spheres. It also offers additional tools for data analysis and angular scattering, as well as inversion methods. However, like miepython, it is implemented entirely in Python, making it significantly slower than ARTmie for coated particles and polydisperse systems, where computational demands are higher.
+   PyMieScatt is a feature-rich Python library that supports homogeneous and single-coated spheres. It also offers additional tools for data analysis and angular scattering, as well as inversion methods. However, like miepython, it is implemented entirely in Python, making it significantly slower than AccelMie for coated particles and polydisperse systems, where computational demands are higher.
 
 3. PyMieSim [@articlePyMieSim; @swPyMieSim] :
 
