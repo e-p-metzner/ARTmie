@@ -246,6 +246,7 @@ Mie functions for Particle size distribubtions
    :type norm2volume: scalar, bool
    :return: * **x_range** (*array-like, 1dimensional, floats*) -- sample core diameters of the particles of the particle size distribution
             * **y_range** (*array-like, 1dimensional, floats*) -- sample shell diameters of the particles of the particle size distribution
+            * **pdf** (*array-like, 1dimensional, floats*) -- probability density function of the particle diameters
             * **crossArea** (*array-like, 1dimensional, floats*) -- scaled particle cross section areas
             * **normWeight** (*scalar, float*) -- normalization weight
 
