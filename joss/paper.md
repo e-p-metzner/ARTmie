@@ -83,7 +83,7 @@ ARTmie is not the first Python module for Mie scattering; therefore, it will be 
 
 # Acknowledgement
 
-This work was done during the funding by the Deutsche Forschungsgemeinschaft (DFG) under the project FE.5250.0010.7772.
+This work was done during the funding by the Deutsche Forschungsgemeinschaft (DFG) under the project HO 5275/6-1.
 
 
 # References
