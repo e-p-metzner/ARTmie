@@ -310,7 +310,7 @@ PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
         npy_intp  flatDims[1];
         flatDims[0]      = PyArray_SIZE( (PyArrayObject*)array_cplx[0]);
         int       a_len  = (int) flatDims[0];
-        std::complex<double> valuesZ[a_len];
+        std::complex<double>* valuesZ = new std::complex<double>[a_len];
         if(ndimZ==1) {
             py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesZ);
         } else {
@@ -336,6 +336,7 @@ PyObject* mie_art_besselj(PyObject *self, PyObject *args, PyObject *kwds) {
             outShp.len = ndimZ;
             res = Py_BuildValue("O", PyArray_Newshape(c2py_cplxarr(a_len, valuesZ), &outShp, NPY_CORDER));
         }
+        delete[] valuesZ;
     }
 
     return res;
@@ -417,7 +418,7 @@ PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
         npy_intp  flatDims[1];
         flatDims[0]      = PyArray_SIZE( (PyArrayObject*)array_cplx[0]);
         int       a_len  = (int) flatDims[0];
-        std::complex<double> valuesZ[a_len];
+        std::complex<double>* valuesZ = new std::complex<double>[a_len];
         if(ndimZ==1) {
             py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesZ);
         } else {
@@ -442,6 +443,7 @@ PyObject* mie_art_bessely(PyObject *self, PyObject *args, PyObject *kwds) {
             outShp.len = ndimZ;
             res = Py_BuildValue("O", PyArray_Newshape(c2py_cplxarr(a_len, valuesZ), &outShp, NPY_CORDER));
         }
+        delete[] valuesZ;
     }
 
     return res;
@@ -517,7 +519,7 @@ PyObject* mie_art_hankel(PyObject *self, PyObject *args, PyObject *kwds) {
         npy_intp  flatDims[1];
         flatDims[0]      = PyArray_SIZE( (PyArrayObject*)array_cplx[0]);
         int       a_len  = (int) flatDims[0];
-        std::complex<double> valuesZ[a_len];
+        std::complex<double>* valuesZ = new std::complex<double>[a_len];
         if(ndimZ==1) {
             py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesZ);
         } else {
@@ -542,6 +544,7 @@ PyObject* mie_art_hankel(PyObject *self, PyObject *args, PyObject *kwds) {
             outShp.len = ndimZ;
             res = Py_BuildValue("O", PyArray_Newshape(c2py_cplxarr(a_len, valuesZ), &outShp, NPY_CORDER));
         }
+        delete[] valuesZ;
     }
 
     return res;
@@ -697,7 +700,7 @@ PyObject* mie_art_airy(PyObject *self, PyObject *args, PyObject *kwds) {
         flatShp.ptr = flatDims;
         flatShp.len = 1;
 
-        std::complex<double> valuesZ[a_len];
+        std::complex<double>* valuesZ = new std::complex<double>[a_len];
         py2c_cplxarr((PyArrayObject*)PyArray_Newshape((PyArrayObject*)array[0], &flatShp, NPY_CORDER), valuesZ);
         double air[1], aii[1];
         int nz, idum;
@@ -715,6 +718,7 @@ PyObject* mie_art_airy(PyObject *self, PyObject *args, PyObject *kwds) {
         outShp.ptr = PyArray_SHAPE((PyArrayObject*)array[0]);
         outShp.len = PyArray_NDIM((PyArrayObject*)array[0]);
         res = Py_BuildValue("O", PyArray_Newshape(c2py_cplxarr(a_len, valuesZ), &outShp, NPY_CORDER));
+        delete[] valuesZ;
     }
     return res;
 }
@@ -741,15 +745,15 @@ void mie_ab(std::complex<double> m, double x, std::complex<double> *an, std::com
     double sx = std::sqrt(HPI*x);
     int idx;
 
-    std::complex<double> Dn[nmx];
+    std::complex<double>* Dn = new std::complex<double>[nmx];
     Dn[nmx-1] = std::complex<double>(0.0,0.0);
     for(idx=nmx-2; idx>=0; idx--) {
         std::complex<double> invM = (2.0+idx) / mx;
         Dn[idx] = invM - 1.0/(Dn[idx+1] + invM);
     }
 
-    std::complex<double> jv[nmax];
-    std::complex<double> yv[nmax];
+    std::complex<double>* jv = new std::complex<double>[nmax];
+    std::complex<double>* yv = new std::complex<double>[nmax];
 
     double jvr[1], jvi[1], yvr[1], yvi[1], cwr[1], cwi[1];
     double v_start = 1.5;
@@ -781,6 +785,10 @@ void mie_ab(std::complex<double> m, double x, std::complex<double> *an, std::com
         p1x  = px;
         ch1x = chx;
     }
+
+    delete[] Dn;
+    delete[] jv;
+    delete[] yv;
 }
 PyObject* mie_art_mieab(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"m", (char*)"x", NULL };
@@ -798,12 +806,14 @@ PyObject* mie_art_mieab(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     int nmax = calc_nmax(valueX);
     std::complex<double> valueM = py2c_cplx(valueNpM);
-    std::complex<double> an[nmax];
-    std::complex<double> bn[nmax];
+    std::complex<double>* an = new std::complex<double>[nmax];
+    std::complex<double>* bn = new std::complex<double>[nmax];
     mie_ab(valueM, valueX, an, bn);
     PyArrayObject *pyan = c2py_cplxarr(nmax, an);
     PyArrayObject *pybn = c2py_cplxarr(nmax, bn);
     PyObject *res = Py_BuildValue("OO", pyan, pybn);
+    delete[] an;
+    delete[] bn;
     return res;
 }
 
@@ -829,9 +839,9 @@ void miecoated_ab(std::complex<double> m_core, double x_core, std::complex<doubl
     int nmx  = 16 + std::max(nmax, (int)(mx+0.5));
     int idx;
 
-    std::complex<double> dnu[nmx];
-    std::complex<double> dnv[nmx];
-    std::complex<double> dnw[nmx];
+    std::complex<double>* dnu = new std::complex<double>[nmx];
+    std::complex<double>* dnv = new std::complex<double>[nmx];
+    std::complex<double>* dnw = new std::complex<double>[nmx];
     dnu[nmx-1] = std::complex<double>(0.0,0.0);
     dnv[nmx-1] = std::complex<double>(0.0,0.0);
     dnw[nmx-1] = std::complex<double>(0.0,0.0);
@@ -854,12 +864,12 @@ void miecoated_ab(std::complex<double> m_core, double x_core, std::complex<doubl
     std::complex<double> ch1y(std::cos(x_shell),0.0);
     std::complex<double> gs1y(0.0,0.0);
 
-    std::complex<double> jv[nmax];
-    std::complex<double> yv[nmax];
-    std::complex<double> jw[nmax];
-    std::complex<double> yw[nmax];
-    std::complex<double> jy[nmax];
-    std::complex<double> yy[nmax];
+    std::complex<double>* jv = new std::complex<double>[nmax];
+    std::complex<double>* yv = new std::complex<double>[nmax];
+    std::complex<double>* jw = new std::complex<double>[nmax];
+    std::complex<double>* yw = new std::complex<double>[nmax];
+    std::complex<double>* jy = new std::complex<double>[nmax];
+    std::complex<double>* yy = new std::complex<double>[nmax];
 
     double jvr[1], jvi[1], yvr[1], yvi[1], cwr[1], cwi[1];
     double v_start = 1.5;
@@ -915,6 +925,16 @@ void miecoated_ab(std::complex<double> m_core, double x_core, std::complex<doubl
         p1y = py;
         ch1y = chy;
     }
+
+    delete[] dnu;
+    delete[] dnv;
+    delete[] dnw;
+    delete[] jv;
+    delete[] yv;
+    delete[] jw;
+    delete[] yw;
+    delete[] jy;
+    delete[] yy;
 }
 PyObject* mie_art_miecoatedab(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"m_core", (char*)"x_core", (char*)"m_shell", (char*)"x_shell", NULL };
@@ -935,12 +955,14 @@ PyObject* mie_art_miecoatedab(PyObject *self, PyObject *args, PyObject *kwds) {
     int nmax = calc_nmax(valueXshell);
     std::complex<double> valueMcore = py2c_cplx(valueNpMcore);
     std::complex<double> valueMshell = py2c_cplx(valueNpMshell);
-    std::complex<double> an[nmax];
-    std::complex<double> bn[nmax];
+    std::complex<double>* an = new std::complex<double>[nmax];
+    std::complex<double>* bn = new std::complex<double>[nmax];
     miecoated_ab(valueMcore, valueXcore, valueMshell, valueXshell, an, bn);
     PyArrayObject *pyan = c2py_cplxarr(nmax, an);
     PyArrayObject *pybn = c2py_cplxarr(nmax, bn);
     PyObject *res = Py_BuildValue("OO", pyan, pybn);
+    delete[] an;
+    delete[] bn;
     return res;
 }
 
@@ -961,7 +983,7 @@ void mie_cd(std::complex<double> m, double x, std::complex<double> *cn, std::com
     int nmx  = 16+std::max(nmax, (int)(std::abs(mx)+0.5));
     int idx;
 
-    std::complex<double> cnx[nmx];
+    std::complex<double>* cnx = new std::complex<double>[nmx];
     cnx[nmx-1] = std::complex<double>(0.0,0.0);
     for(idx=nmx; idx>1; idx--) {
         cnx[idx-1] = (double)idx - mx2/(cnx[idx]+(double)idx);
@@ -972,8 +994,8 @@ void mie_cd(std::complex<double> m, double x, std::complex<double> *cn, std::com
     std::complex<double> b1x(std::sin(x)/x,0.0);
     std::complex<double> y1x(std::cos(x)/x,0.0);
 
-    std::complex<double> jv[nmax];
-    std::complex<double> yv[nmax];
+    std::complex<double>* jv = new std::complex<double>[nmax];
+    std::complex<double>* yv = new std::complex<double>[nmax];
     double jvr[1], jvi[1], yvr[1], yvi[1], cwr[1], cwi[1];
     double v_start = 1.5;
     int success, ierr;
@@ -1003,6 +1025,10 @@ void mie_cd(std::complex<double> m, double x, std::complex<double> *cn, std::com
         b1x = jnx;
         y1x = yx;
     }
+
+    delete[] cnx;
+    delete[] jv;
+    delete[] yv;
 }
 PyObject* mie_art_miecd(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"m", (char*)"x", NULL };
@@ -1020,12 +1046,14 @@ PyObject* mie_art_miecd(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     int nmax = calc_nmax(valueX);
     std::complex<double> valueM = py2c_cplx(valueNpM);
-    std::complex<double> cn[nmax];
-    std::complex<double> dn[nmax];
+    std::complex<double>* cn = new std::complex<double>[nmax];
+    std::complex<double>* dn = new std::complex<double>[nmax];
     mie_cd(valueM, valueX, cn, dn);
     PyArrayObject *pycn = c2py_cplxarr(nmax, cn);
     PyArrayObject *pydn = c2py_cplxarr(nmax, dn);
     PyObject *res = Py_BuildValue("OO", pycn, pydn);
+    delete[] cn;
+    delete[] dn;
     return res;
 }
 
@@ -1051,8 +1079,8 @@ void mie_pitau(double theta, int nmax, double *pin, double *taun) {
 }
 void mie_pitau(int nang, double *theta, int nmax, double *pin, double *taun) {
     int a,n;
-    double sub_pi[nmax];
-    double sub_tau[nmax];
+    double* sub_pi = new double[nmax];
+    double* sub_tau = new double[nmax];
     for(a=0; a<nang; a++) {
         mie_pitau(theta[a], nmax, sub_pi, sub_tau);
         int off = a*nmax;
@@ -1061,6 +1089,8 @@ void mie_pitau(int nang, double *theta, int nmax, double *pin, double *taun) {
             taun[off+n] = sub_tau[n];
         }
     }
+    delete[] sub_pi;
+    delete[] sub_tau;
 }
 PyObject* mie_art_miepitau(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"theta", (char*)"nmax", NULL };
@@ -1069,12 +1099,14 @@ PyObject* mie_art_miepitau(PyObject *self, PyObject *args, PyObject *kwds) {
     double valueTheta;
     int valueNmax;
     if(PyArg_ParseTupleAndKeywords(args, kwds, "di", kwlist, &valueTheta, &valueNmax)) {
-        double pin[valueNmax];
-        double taun[valueNmax];
+        double* pin = new double[valueNmax];
+        double* taun = new double[valueNmax];
         mie_pitau(valueTheta, valueNmax, pin, taun);
         PyArrayObject *pypin = c2py_dblarr(valueNmax, pin);
         PyArrayObject *pytaun = c2py_dblarr(valueNmax, taun);
         PyObject *res = Py_BuildValue("OO", pypin, pytaun);
+        delete[] pin;
+        delete[] taun;
         return res;
     } else {
         PyErr_Clear();
@@ -1111,8 +1143,8 @@ PyObject* mie_art_miepitau(PyObject *self, PyObject *args, PyObject *kwds) {
         Py_XDECREF(array[0]);
         return NULL;
     }
-    int nang = PyArray_SIZE((PyArrayObject *)array[0]);
-    double theta[nang];
+    int nang = (int) PyArray_SIZE((PyArrayObject *)array[0]);
+    double *theta = new double[nang];
     py2c_dblarr((PyArrayObject *)array[0], theta);
     int arr_len = nang*valueNmax;
     double *pin = new double[arr_len];
@@ -1122,6 +1154,7 @@ PyObject* mie_art_miepitau(PyObject *self, PyObject *args, PyObject *kwds) {
     PyArrayObject *pytaun = c2py_dblarr(nang, valueNmax, taun);
     PyObject *res = Py_BuildValue("OO", pypin, pytaun);
     Py_DECREF(array[0]);
+    delete[] theta;
     delete[] pin;
     delete[] taun;
     return res;
@@ -1250,8 +1283,8 @@ PyObject* mie_art_ab2mie(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
 
-    std::complex<double> an[a_len];
-    std::complex<double> bn[b_len];
+    std::complex<double>* an = new std::complex<double>[a_len];
+    std::complex<double>* bn = new std::complex<double>[b_len];
     py2c_cplxarr((PyArrayObject*)array[0], an);
     py2c_cplxarr((PyArrayObject*)array[1], bn);
     MieResult mr = ab2mie(a_len, an, bn, valueW, valueD, valueCSS);
@@ -1273,6 +1306,9 @@ PyObject* mie_art_ab2mie(PyObject *self, PyObject *args, PyObject *kwds) {
 
     Py_DECREF(array[0]);
     Py_DECREF(array[1]);
+
+    delete[] an;
+    delete[] bn;
     return res;
 }
 
@@ -1359,8 +1395,8 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
         std::complex<double> valueM = py2c_cplx(valueNpM) / valueNmedium;
         double x = _PI_*valueD/valueW;
         int nmax = calc_nmax(x);
-        std::complex<double> an[nmax];
-        std::complex<double> bn[nmax];
+        std::complex<double>* an = new std::complex<double>[nmax];
+        std::complex<double>* bn = new std::complex<double>[nmax];
         mie_ab(valueM, x, an, bn);
         MieResult mr = ab2mie(nmax, an, bn, valueW, valueD, valueCSS);
 
@@ -1377,6 +1413,9 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
         } else {
             res = Py_BuildValue("ddddddd",mr.qext,mr.qsca,mr.qabs,mr.qback,mr.qratio,mr.qpr,mr.qg);
         }
+
+        delete[] an;
+        delete[] bn;
     }
     if(numArrs>1) {
         int ndimM = PyArray_NDIM((PyArrayObject*)array_cplx[0]);
@@ -1408,8 +1447,8 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
         flatShp.ptr = flatDims;
         flatShp.len = 1;
 
-        std::complex<double> valuesM[a_len];
-        double valuesW[a_len];
+        std::complex<double>* valuesM = new std::complex<double>[a_len];
+        double* valuesW = new double[a_len];
         if(ndimW==1) {
             py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesM);
             py2c_dblarr( (PyArrayObject*)array[0],      valuesW);
@@ -1418,18 +1457,18 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
             py2c_dblarr( (PyArrayObject*)PyArray_Newshape((PyArrayObject*)array[0],      &flatShp, NPY_CORDER), valuesW);
         }
 
-        double bext[a_len];
-        double bsca[a_len];
-        double babs[a_len];
-        double bbck[a_len];
-        double brat[a_len];
-        double bpr[a_len];
-        double bg[a_len];
+        double* bext = new double[a_len];
+        double* bsca = new double[a_len];
+        double* babs = new double[a_len];
+        double* bbck = new double[a_len];
+        double* brat = new double[a_len];
+        double* bpr  = new double[a_len];
+        double* bg   = new double[a_len];
         for(int i=0; i<a_len; i++) {
             double x = _PI_*valueD/valuesW[i];
             int nmax = calc_nmax(x);
-            std::complex<double> an[nmax];
-            std::complex<double> bn[nmax];
+            std::complex<double>* an = new std::complex<double>[nmax];
+            std::complex<double>* bn = new std::complex<double>[nmax];
             mie_ab(valuesM[i], x, an, bn);
             MieResult mr = ab2mie(nmax, an, bn, valuesW[i], valueD, valueCSS);
             bext[i] = mr.qext;
@@ -1439,6 +1478,8 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
             brat[i] = mr.qratio;
             bpr[i]  = mr.qpr;
             bg[i]   = mr.qg;
+            delete[] an;
+            delete[] bn;
         }
 
         PyArray_Dims outShp = { nullptr, 0 };
@@ -1483,6 +1524,16 @@ PyObject* mie_art_mieq(PyObject *self, PyObject *args, PyObject *kwds) {
                                 pyext_arr, pysca_arr, pyabs_arr,pybck_arr,
                                 pyrat_arr, pypr_arr, pyasy_arr);
         }
+
+        delete[] valuesM;
+        delete[] valuesW;
+        delete[] bext;
+        delete[] bsca;
+        delete[] babs;
+        delete[] bbck;
+        delete[] brat;
+        delete[] bpr;
+        delete[] bg;
     }
 
     return res;
@@ -1577,8 +1628,8 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
         double x = _PI_*valueDcore/valueW;
         double y = _PI_*valueDshell/valueW;
         int nmax = calc_nmax(y);
-        std::complex<double> an[nmax];
-        std::complex<double> bn[nmax];
+        std::complex<double>* an = new std::complex<double>[nmax];
+        std::complex<double>* bn = new std::complex<double>[nmax];
         miecoated_ab(valueMcore, x, valueMshell, y, an, bn);
         MieResult mr = ab2mie(nmax, an, bn, valueW, valueDshell, valueCSS);
 
@@ -1595,6 +1646,9 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
         } else {
             res = Py_BuildValue("ddddddd",mr.qext,mr.qsca,mr.qabs,mr.qback,mr.qratio,mr.qpr,mr.qg);
         }
+
+        delete[] an;
+        delete[] bn;
     }
     if(numArrs>1) {
         int ndimMc = PyArray_NDIM((PyArrayObject*)array_cplx[0]);
@@ -1628,9 +1682,9 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
         flatShp.ptr = flatDims;
         flatShp.len = 1;
 
-        std::complex<double> valuesMcore[a_len];
-        std::complex<double> valuesMshell[a_len];
-        double valuesW[a_len];
+        std::complex<double>* valuesMcore  = new std::complex<double>[a_len];
+        std::complex<double>* valuesMshell = new std::complex<double>[a_len];
+        double*               valuesW      = new double[a_len];
         if(ndimW==1) {
             py2c_cplxarr((PyArrayObject*)array_cplx[0], valuesMcore);
             py2c_cplxarr((PyArrayObject*)array_cplx[1], valuesMshell);
@@ -1641,21 +1695,21 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
             py2c_dblarr( (PyArrayObject*)PyArray_Newshape((PyArrayObject*)array[0],      &flatShp, NPY_CORDER), valuesW);
         }
 
-        double bext[a_len];
-        double bsca[a_len];
-        double babs[a_len];
-        double bbck[a_len];
-        double brat[a_len];
-        double bpr[a_len];
-        double bg[a_len];
+        double* bext = new double[a_len];
+        double* bsca = new double[a_len];
+        double* babs = new double[a_len];
+        double* bbck = new double[a_len];
+        double* brat = new double[a_len];
+        double* bpr  = new double[a_len];
+        double* bg   = new double[a_len];
         for(int i=0; i<a_len; i++) {
             valuesMcore[i]  /= valueNmedium;
             valuesMshell[i] /= valueNmedium;
             double x = _PI_*valueDcore/valuesW[i];
             double y = _PI_*valueDshell/valuesW[i];
             int nmax = calc_nmax(y);
-            std::complex<double> an[nmax];
-            std::complex<double> bn[nmax];
+            std::complex<double>* an = new std::complex<double>[nmax];
+            std::complex<double>* bn = new std::complex<double>[nmax];
             miecoated_ab(valuesMcore[i], x, valuesMshell[i], y, an, bn);
             MieResult mr = ab2mie(nmax, an, bn, valuesW[i], valueDshell, valueCSS);
             bext[i] = mr.qext;
@@ -1665,6 +1719,9 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
             brat[i] = mr.qratio;
             bpr[i]  = mr.qpr;
             bg[i]   = mr.qg;
+
+            delete[] an;
+            delete[] bn;
         }
 
         PyArray_Dims outShp = { nullptr, 0 };
@@ -1709,6 +1766,17 @@ PyObject* mie_art_miecoatedq(PyObject *self, PyObject *args, PyObject *kwds) {
                                 pyext_arr, pysca_arr, pyabs_arr, pybck_arr,
                                 pyrat_arr, pypr_arr, pyasy_arr);
         }
+
+        delete[] valuesMcore;
+        delete[] valuesMshell;
+        delete[] valuesW;
+        delete[] bext;
+        delete[] bsca;
+        delete[] babs;
+        delete[] bbck;
+        delete[] brat;
+        delete[] bpr;
+        delete[] bg;
     }
 
     return res;
@@ -1785,7 +1853,7 @@ PyObject* mie_art_scatfunc(PyObject *self, PyObject *args, PyObject *kwds) {
         Py_XDECREF(th_arr[0]);
         return NULL;
     }
-    int nang = PyArray_SIZE((PyArrayObject *)th_arr[0]);
+    int nang = (int) PyArray_SIZE((PyArrayObject *)th_arr[0]);
 
     std::complex<double> m_core  = py2c_cplx(valueNpMcore);
     std::complex<double> m_shell = py2c_cplx(valueNpMshell);
@@ -1795,8 +1863,8 @@ PyObject* mie_art_scatfunc(PyObject *self, PyObject *args, PyObject *kwds) {
     double xval = valueD*_PI_/valueW;
     double yval = valueD*(1.0+valueFcoat)*_PI_/valueW;
     int nmax = calc_nmax(yval);
-    std::complex<double> an[nmax];
-    std::complex<double> bn[nmax];
+    std::complex<double>* an = new std::complex<double>[nmax];
+    std::complex<double>* bn = new std::complex<double>[nmax];
 
     int is_coated = (valueFcoat>EPS && (m_core!=m_shell));
 
@@ -1806,7 +1874,7 @@ PyObject* mie_art_scatfunc(PyObject *self, PyObject *args, PyObject *kwds) {
         mie_ab(m_core, yval, an, bn);
     }
 
-    double theta[nang];
+    double* theta = new double[nang];
     py2c_dblarr((PyArrayObject *)th_arr[0], theta);
 
     int pitau_len = nang*nmax;
@@ -1814,9 +1882,9 @@ PyObject* mie_art_scatfunc(PyObject *self, PyObject *args, PyObject *kwds) {
     double *taun = new double[pitau_len];
     mie_pitau(nang, theta, nmax, pin, taun);
 
-    double outSL[nang];
-    double outSR[nang];
-    double outSU[nang];
+    double* outSL = new double[nang];
+    double* outSR = new double[nang];
+    double* outSU = new double[nang];
     scattering_function(nmax, an, bn, nang, theta, nmax, pin, taun, outSL, outSR, outSU);
 
     PyObject *res = Py_BuildValue("OOO",
@@ -1825,6 +1893,16 @@ PyObject* mie_art_scatfunc(PyObject *self, PyObject *args, PyObject *kwds) {
         c2py_dblarr(nang, outSU)
         );
     Py_DECREF(th_arr[0]);
+
+    delete[] an;
+    delete[] bn;
+    delete[] theta;
+    delete[] pin;
+    delete[] taun;
+    delete[] outSL;
+    delete[] outSR;
+    delete[] outSU;
+
     return res;
 }
 
@@ -1887,7 +1965,7 @@ void createLogNormalDistribution(double d_gn, double sigma_g, double fcoat, doub
         y_range[idx] = cfp1*x_range[idx];
     }
 
-    double dexp[dcount];
+    double* dexp = new double[dcount];
     LogNormal_pdf_dexp(dcount, x_range, d_gn, sigma_g, pdf, dexp);
 
 //    double dDp[dcount];
@@ -1919,6 +1997,8 @@ void createLogNormalDistribution(double d_gn, double sigma_g, double fcoat, doub
     } else {
         *normWeight = 1.0e-6;
     }
+
+    delete[] dexp;
 }
 PyObject* mie_art_createLgNormDist(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = { (char*)"mean_diam", (char*)"stdev_diam", (char*)"fcoat", (char*)"res", (char*)"norm2core", (char*)"norm2volume", NULL };
@@ -1939,10 +2019,10 @@ PyObject* mie_art_createLgNormDist(PyObject *self, PyObject *args, PyObject *kwd
     }
 
     int dcount = calc_diam_count(valueMu, valueStd, valueRes);
-    double core_diams[dcount];
-    double shell_diams[dcount];
-    double pdf[dcount];
-    double crossArea[dcount];
+    double* core_diams  = new double[dcount];
+    double* shell_diams = new double[dcount];
+    double* pdf         = new double[dcount];
+    double* crossArea   = new double[dcount];
     double normWeight;
     double density = 1.0;
     createLogNormalDistribution(valueMu, valueStd, valueFcoat, valueRes, density, valueN2core, valueN2vol, core_diams, shell_diams, pdf, crossArea, &normWeight);
@@ -1953,6 +2033,12 @@ PyObject* mie_art_createLgNormDist(PyObject *self, PyObject *args, PyObject *kwd
                                   c2py_dblarr(dcount, pdf),
                                   c2py_dblarr(dcount, crossArea),
                                   normWeight);
+
+    delete[] core_diams;
+    delete[] shell_diams;
+    delete[] pdf;
+    delete[] crossArea;
+
     return res;
 }
 
@@ -2055,8 +2141,8 @@ PyObject* mie_art_calcBackScat(PyObject *self, PyObject *args, PyObject *kwds) {
 
     int ndimA = PyArray_NDIM((PyArrayObject *)ab_array[0]);
     int ndimB = PyArray_NDIM((PyArrayObject *)ab_array[1]);
-    int sizeA = PyArray_SIZE((PyArrayObject *)ab_array[0]);
-    int sizeB = PyArray_SIZE((PyArrayObject *)ab_array[1]);
+    int sizeA = (int) PyArray_SIZE((PyArrayObject *)ab_array[0]);
+    int sizeB = (int) PyArray_SIZE((PyArrayObject *)ab_array[1]);
     int nmax = sizeA;
     if(ndimA!=1 || ndimB!=1 || sizeA!=sizeB) {
         PyErr_SetString(
@@ -2071,9 +2157,9 @@ PyObject* mie_art_calcBackScat(PyObject *self, PyObject *args, PyObject *kwds) {
     int ndimH = PyArray_NDIM((PyArrayObject *)th_array[0]);
     int ndimD = PyArray_NDIM((PyArrayObject *)th_array[1]);
     int ndimS = PyArray_NDIM((PyArrayObject *)th_array[2]);
-    int sizeH = PyArray_SIZE((PyArrayObject *)th_array[0]);
-    int sizeD = PyArray_SIZE((PyArrayObject *)th_array[1]);
-    int sizeS = PyArray_SIZE((PyArrayObject *)th_array[2]);
+    int sizeH = (int) PyArray_SIZE((PyArrayObject *)th_array[0]);
+    int sizeD = (int) PyArray_SIZE((PyArrayObject *)th_array[1]);
+    int sizeS = (int) PyArray_SIZE((PyArrayObject *)th_array[2]);
     int nang = sizeH;
     if(ndimH!=1 || ndimD!=1 || ndimS!=1 || sizeH!=sizeD || sizeH!=sizeS) {
         PyErr_SetString(
@@ -2110,13 +2196,13 @@ PyObject* mie_art_calcBackScat(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
 
-    std::complex<double> an[nmax];
-    std::complex<double> bn[nmax];
+    std::complex<double>* an = new std::complex<double>[nmax];
+    std::complex<double>* bn = new std::complex<double>[nmax];
     py2c_cplxarr((PyArrayObject *)ab_array[0], an);
     py2c_cplxarr((PyArrayObject *)ab_array[1], bn);
-    double theta[nang];
-    double dtheta[nang];
-    double scatwgts[nang];
+    double* theta = new double[nang];
+    double* dtheta = new double[nang];
+    double* scatwgts = new double[nang];
     py2c_dblarr((PyArrayObject *)th_array[0], theta);
     py2c_dblarr((PyArrayObject *)th_array[1], dtheta);
     py2c_dblarr((PyArrayObject *)th_array[2], scatwgts);
@@ -2136,6 +2222,11 @@ PyObject* mie_art_calcBackScat(PyObject *self, PyObject *args, PyObject *kwds) {
     Py_DECREF(th_array[2]);
     Py_DECREF(pt_array[0]);
     Py_DECREF(pt_array[1]);
+    delete[] an;
+    delete[] bn;
+    delete[] theta;
+    delete[] dtheta;
+    delete[] scatwgts;
     delete[] pin;
     delete[] taun;
     return res;
@@ -2186,10 +2277,10 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     }
     double res = 1.0/resolution;
     int dcount = calc_diam_count(mean_diam, stdev_diam, res);
-    double core_diams[dcount];
-    double shell_diams[dcount];
-    double pdf[dcount];
-    double crossArea[dcount];
+    double* core_diams  = new double[dcount];
+    double* shell_diams = new double[dcount];
+    double* pdf         = new double[dcount];
+    double* crossArea   = new double[dcount];
     double normWeight;
     createLogNormalDistribution(mean_diam, stdev_diam, fcoating, res, dens, effcore, norm2vol, core_diams, shell_diams, pdf, crossArea, &normWeight);
     double max_shell_diam = 0.0;
@@ -2201,15 +2292,15 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
 
     double angres = 0.25; //degrees
     int nang = calc_angles_count(angres);
-    double theta[nang];
-    double dtheta[nang];
-    double scatwgts[nang];
+    double* theta    = new double[nang];
+    double* dtheta   = new double[nang];
+    double* scatwgts = new double[nang];
     scattering_weights(angres, theta, dtheta, scatwgts);
 
     double maxy = _PI_*max_shell_diam/wavelength;
-    int nmax = calc_nmax(maxy);
+    int nmax    = calc_nmax(maxy);
     int arr_len = nang*nmax;
-    double *pin = new double[arr_len];
+    double *pin  = new double[arr_len];
     double *taun = new double[arr_len];
     mie_pitau(nang, theta, nmax, pin, taun);
     std::complex<double> *an = new std::complex<double>[nmax];
@@ -2287,6 +2378,13 @@ void size_distribution_optics(std::complex<double> m_core, double mean_diam, dou
     mie_tots->bback  *= normWeight;
     mie_tots->bawbsc *= normWeight;
 
+    delete[] core_diams;
+    delete[] shell_diams;
+    delete[] pdf;
+    delete[] crossArea;
+    delete[] theta;
+    delete[] dtheta;
+    delete[] scatwgts;
     delete[] pin;
     delete[] taun;
     delete[] an;
@@ -2432,10 +2530,10 @@ The size distribution is currently hardcoded to be log-normal. Other distributio
 void size_distribution_phase_function(std::complex<double> m_core, double mean_diam, double stdev_diam, double wavelength, std::complex<double> m_shell, double fcoating, double resolution, double dens, int effcore, int norm2vol, int nang, double *outTheta, double *outSL, double *outSR, double *outSU) {
     double res = 1.0/resolution;
     int dcount = calc_diam_count(mean_diam, stdev_diam, res);
-    double core_diams[dcount];
-    double shell_diams[dcount];
-    double pdf[dcount];
-    double crossArea[dcount];
+    double* core_diams  = new double[dcount];
+    double* shell_diams = new double[dcount];
+    double* pdf         = new double[dcount];
+    double* crossArea   = new double[dcount];
     double normWeight;
     createLogNormalDistribution(mean_diam, stdev_diam, fcoating, res, dens, effcore, norm2vol, core_diams, shell_diams, pdf, crossArea, &normWeight);
     double max_shell_diam = 0.0;
@@ -2445,9 +2543,9 @@ void size_distribution_phase_function(std::complex<double> m_core, double mean_d
             max_shell_diam = shell_diams[idx];
     }
 
-    double sl[nang];
-    double sr[nang];
-    double su[nang];
+    double* sl = new double[nang];
+    double* sr = new double[nang];
+    double* su = new double[nang];
 
     double maxy = _PI_*max_shell_diam/wavelength;
     int nmax = calc_nmax(maxy);
@@ -2493,6 +2591,13 @@ void size_distribution_phase_function(std::complex<double> m_core, double mean_d
         outSU[a] *= normWeight;
     }
 
+    delete[] core_diams;
+    delete[] shell_diams;
+    delete[] pdf;
+    delete[] crossArea;
+    delete[] sl;
+    delete[] sr;
+    delete[] su;
     delete[] pin;
     delete[] taun;
     delete[] an;
@@ -2523,10 +2628,10 @@ PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
         }
         double angres = 0.25; //degrees
         int nang = calc_angles_count(angres);
-        double theta[nang];
-        double pf_sl[nang];
-        double pf_sr[nang];
-        double pf_su[nang];
+        double* theta = new double[nang];
+        double* pf_sl = new double[nang];
+        double* pf_sr = new double[nang];
+        double* pf_su = new double[nang];
         double ares = angres*_PI_/180.0;
         for(int a=0; a<nang; a++) {
             theta[a] = a*ares;
@@ -2538,6 +2643,10 @@ PyObject* mie_art_sdpf(PyObject *self, PyObject *args, PyObject *kwds) {
                 c2py_dblarr(nang, pf_sr),
                 c2py_dblarr(nang, pf_su)
             );
+        delete[] theta;
+        delete[] pf_sl;
+        delete[] pf_sr;
+        delete[] pf_su;
     } else {
 //        array_sizepar = 1;
 //        PyErr_Clear();
