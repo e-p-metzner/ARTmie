@@ -13,6 +13,5 @@ authors:
   family-names: Metzner
 license: BSD-3-Clause
 identifiers:
-- description: This is the archived snapshot of version v0.1.2 of ARTmie
-  type: doi
+- type: doi
   value: 10.35097/1e058ddcxvqhwtrr
