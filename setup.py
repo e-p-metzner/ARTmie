@@ -9,7 +9,7 @@ if __name__ == "__main__":
     np_inc = np.get_include()
     setup(
         name="ARTmie",
-        version="0.1.2",
+        version="0.1.3",
         description="Fast Mie calculation library with C++ backend",
         authors=["Enrico P. Metzner"],
         ext_modules=[
