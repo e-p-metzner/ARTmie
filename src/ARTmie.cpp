@@ -2232,6 +2232,92 @@ PyObject* mie_art_calcBackScat(PyObject *self, PyObject *args, PyObject *kwds) {
     return res;
 }
 
+#define cbs_phfunc_docstring "calcBackscatteringFromPhFunc(x, theta, phfunc)\n\n\
+Calculates the scattering angle weighted Mie backscattering efficiency from a provided phase function.\n\n\
+Parameters\n----------\n\
+x : scalar, floating point number\n    size parameter $x$\n\
+theta : array-like, 1dimensional, floating point numbers\n    all angels $\\theta$, for which the phase function was calculated\n\
+phfunc : array-like, 1dimensional, floating point numbers\n    phase function values for every angle $\\theta$\n\n\
+Returns\n-------\n\
+s : scalar, floating point number\n    backscatter coefficient\n    It is not the same as the provided one through MieQ() or ab2mie()!\n\n\
+Notes\n-----\n\
+If the scattering-angle weighted backscattering coefficient should be calculated for a large number of particles with different  properties,\
+the faster way is to use the calcBackscattering() and to calculate the backscattering coefficient directly from the series $a_n$, $b_n$, ${\\pi}_n$ and ${\\tau}_n$ with precalculated scattering angles and scatterings weights."
+double calc_awbsc_from_phfunc(double x, double *theta, double *phfunc, const int nang) {
+    double awbsc = 0.0;
+    for(int idx=0; idx<nang; idx++) {
+        if ( theta[idx] <= 0.5*_PI_-EPS ) {
+            continue;
+        }
+        double dtheta = 0.0;
+        if(idx==0) {
+            dtheta = theta[idx+1] - theta[idx];
+        } else if(idx==nang-1) {
+            dtheta = theta[idx] - theta[idx-1];
+        } else {
+            dtheta = 0.5 * (theta[idx+1] - theta[idx-1]);
+        }
+        double wgt = std::sin(theta[idx]);
+        if (std::abs(theta[idx]-0.5*_PI_)<EPS) {
+            wgt *= 0.5;
+        }
+        awbsc += phfunc[idx] * dtheta * wgt;
+    }
+    return awbsc * 2.0 / (x*x);
+}
+PyObject* mie_art_calcBackScatFromPhFunc(PyObject *self, PyObject *args, PyObject *kwds) {
+    static char *kwlist[] = { (char*)"x", (char*)"theta", (char*)"phfunc", NULL };
+
+    double valueX;
+    PyObject *data_ptr[] = { NULL, NULL };
+    PyObject *data_arr[] = { NULL, NULL };
+    int dtype = -1;
+    if(PyArg_ParseTupleAndKeywords(args, kwds, "dOO", kwlist, &valueX, &data_ptr[0], &data_ptr[1])) {
+        {
+            if(parse_arrays(2, NPY_FLOAT, data_ptr, data_arr)) dtype = NPY_FLOAT;
+        }
+        if(dtype<0) {
+            if(parse_arrays(2, NPY_DOUBLE, data_ptr, data_arr)) dtype = NPY_DOUBLE;
+        }
+    } else {
+        return NULL;
+    }
+    if(dtype < 0) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "The arguments dtypes do not match, expected theta and phfunc to be of the type float[] or double[]!"
+        );
+        Py_XDECREF(data_arr[0]);
+        Py_XDECREF(data_arr[1]);
+        return NULL;
+    }
+
+    int sizeT = (int) PyArray_SIZE((PyArrayObject *)data_arr[0]);
+    int sizeP = (int) PyArray_SIZE((PyArrayObject *)data_arr[1]);
+    if(sizeT!=sizeP) {
+        PyErr_SetString(
+            PyExc_IndexError,
+            "The length of the arrays theta and phfunc have to be the same!"
+        );
+        Py_XDECREF(data_arr[0]);
+        Py_XDECREF(data_arr[1]);
+        return NULL;
+    }
+
+    double* theta = new double[sizeT];
+    double* phfunc = new double[sizeP];
+    py2c_dblarr((PyArrayObject *)data_arr[0], theta);
+    py2c_dblarr((PyArrayObject *)data_arr[1], phfunc);
+    double awbsc = calc_awbsc_from_phfunc(valueX, theta, phfunc, sizeT);
+
+    PyObject *res = Py_BuildValue("d", awbsc);
+    Py_DECREF(data_arr[0]);
+    Py_DECREF(data_arr[1]);
+    delete[] theta;
+    delete[] phfunc;
+    return res;
+}
+
 struct Mie_tots {
     double bext;
     double bsca;
@@ -2731,10 +2817,11 @@ PyMethodDef mie_methods[] = {
     {"ab2mie",           (PyCFunction)(void(*)(void))mie_art_ab2mie,        METH_VARARGS|METH_KEYWORDS, abtomie_docstring},
     {"ScatteringFunction", (PyCFunction)(void(*)(void))mie_art_scatfunc,    METH_VARARGS|METH_KEYWORDS, scatfunc_docstring},
 
-    {"createLogNormalDistribution",      (PyCFunction)(void(*)(void))mie_art_createLgNormDist, METH_VARARGS|METH_KEYWORDS, clnd_docstring},
-    {"calcBackscattering",               (PyCFunction)(void(*)(void))mie_art_calcBackScat,     METH_VARARGS|METH_KEYWORDS, cbs_docstring},
-    {"Size_Distribution_Optics",         (PyCFunction)(void(*)(void))mie_art_sdo,              METH_VARARGS|METH_KEYWORDS, sdo_docstring},
-    {"Size_Distribution_Phase_Function", (PyCFunction)(void(*)(void))mie_art_sdpf,             METH_VARARGS|METH_KEYWORDS, sdpf_docstring},
+    {"createLogNormalDistribution",      (PyCFunction)(void(*)(void))mie_art_createLgNormDist,       METH_VARARGS|METH_KEYWORDS, clnd_docstring},
+    {"calcBackscattering",               (PyCFunction)(void(*)(void))mie_art_calcBackScat,           METH_VARARGS|METH_KEYWORDS, cbs_docstring},
+    {"calcBackscatteringFromPhFunc",     (PyCFunction)(void(*)(void))mie_art_calcBackScatFromPhFunc, METH_VARARGS|METH_KEYWORDS, cbs_phfunc_docstring},
+    {"Size_Distribution_Optics",         (PyCFunction)(void(*)(void))mie_art_sdo,                    METH_VARARGS|METH_KEYWORDS, sdo_docstring},
+    {"Size_Distribution_Phase_Function", (PyCFunction)(void(*)(void))mie_art_sdpf,                   METH_VARARGS|METH_KEYWORDS, sdpf_docstring},
 
     {NULL, NULL, 0, NULL} /* sentinel */
 };

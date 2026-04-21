@@ -37,7 +37,7 @@ include:
 - local: .gitlab/ci/cff.gitlab-ci.yml
 - local: .gitlab/ci/datacite.gitlab-ci.yml
 - local: .gitlab/ci/release.gitlab-ci.yml
-- local: .gitlab/ci/radar.gitlab-ci.yml
+#- local: .gitlab/ci/radar.gitlab-ci.yml #currently deactivated; probably, next big publish to Radar4KIT will be with release v0.2.0
 
 # This configuration must be used if you have runners with other executors than docker available (for example shell runners)
 # To force the jobs to be picked up by docker runners, use the tag associated to the docker runners (usually "docker"):

@@ -279,6 +279,26 @@ Mie functions for Particle size distribubtions
    :rtype: scalar, float
 
 
+.. py:function:: ARTmie.calcBackscatteringFromPhFunc(x, theta, phfunc, dtheta, scatwts)
+
+   Calculates the scattering angle weighted backscattering coefficient.
+   
+   .. note::
+   
+      this is not the same backscattering coefficient as calculated by :func:`~ARTmie.MieQ` or :func:`~ARTmie.ab2mie`
+
+      the result is the same as :func:`~ARTmie.calcBackscattering` but calculated from the phase function instead of the Mie coefficients, so it can be used for non-Mie scattering as well
+
+   :param x: size parameter of the particle
+   :type x: scalar, float
+   :param theta: the scattering angles :math:`\theta`, in degrees
+   :type theta: array-like, 1dimensional, floats
+   :param phfunc: the phase function values at the scattering angles
+   :type phfunc: array-like, 1dimensional, floats
+   :return: scattering angle weighted backscatter coefficient
+   :rtype: scalar, float
+
+
 .. py:function:: ARTmie.Size_Distribution_Optics(mp, sizepar1, sizepar2, wavelength, /, nMedium=1.0, fcoat=0.0, mc=mp, density=1.0, resolution=10, effcore=True, normalized=True)
 
    Calculates the Mie efficiencies as in :func:`~ARTmie.MieQ` but for a particle size distribution.

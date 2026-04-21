@@ -88,3 +88,28 @@ def test_coated(mc,ms,dc,cf,wl,expectation):
             delta = np.abs(q[k]/expectation[k]-1.0)
             if delta>=1.0e-8:
                 warnings.warn(f'Somewhat significant difference ({delta}) between ARTmie and used reference: PyMieScatt.', AccuracyWarning)
+
+def test_backscattering():
+    # test that backscattering is correctly calculated as the scattering in the exact backward direction
+    m = 1.5+0.1j
+    d = 400.0
+    wl = 550.0
+    x = np.pi*d/wl
+    an,bn = ARTmie.Mie_ab(m, x)
+    theta = np.linspace(0,180,361)*np.pi/180.0
+    dtheta = np.zeros_like(theta)
+    dtheta[1:-1] = 0.5*(theta[2:]-theta[:-2])
+    dtheta[0] = theta[1]-theta[0]
+    dtheta[-1] = theta[-1]-theta[-2]
+    scatwgts = np.sin(theta)
+    scatwgts[:180] *= 0.0
+    scatwgts[180] *= 0.5
+    nmax = np.max([len(an),len(bn)])
+    pin,taun = ARTmie.Mie_pitau(theta, nmax)
+    sl,sr,su = ARTmie.ScatteringFunction(m, d, wl, theta)
+    # get first variant of scatt.angle weighted backscattering coefficient
+    bscAB = ARTmie.calcBackscattering(x, an, bn, theta, dtheta, scatwgts, pin, taun)
+    # get second variant of scatt.angle weighted backscattering coefficient from phase function
+    bscPF = ARTmie.calcBackscatteringFromPhFunc(x, theta, su)
+    # compare the two variants
+    assert np.abs(bscAB-bscPF)<1.0e-8

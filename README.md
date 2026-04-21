@@ -4,7 +4,9 @@
 
 [![Documentation Status](https://readthedocs.org/projects/ARTmie/badge/?version=latest)](https://artmie.readthedocs.io/en/latest/)
 &emsp; &emsp;
+<!--
 [![status](https://joss.theoj.org/papers/4b57e7822ef42dd545bb2d40776b787a/status.svg)](https://joss.theoj.org/papers/4b57e7822ef42dd545bb2d40776b787a)
+-->
 
 `ARTmie` is a python library to calculate optical properties of spherical particles.<br>
 Those can be simple, single coated or drawn from a particle size distribution.<br>
@@ -120,3 +122,10 @@ Enrico P. Metzner
 for version 0.2.0:
  - 1dimensional arrays for input arguments sizepar1 & sizepar2 in Size\_Distribution\_Optics and Size\_Distribution\_Phase\_Function
  - Size\_Distribution\_Phase\_Function can also take an array of angles (theta) instead of predefined equally spaced 721 angles from 0° to 180°
+
+
+## Developement status
+
+There are ideas, what to add to the library, but the developement is slowed down.</br>
+Main features needed for work are implemented.</br>
+Any suggestions on how to make the library more flexible and how to speed things up are welcome.</br>

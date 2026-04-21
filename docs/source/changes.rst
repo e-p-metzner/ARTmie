@@ -2,6 +2,16 @@
 Change-Log
 ==========
 
+v0.1.3
+******
+
+New:
+
+- :func:`~ARTmie.calcBackscatteringFromPhFunc` calculates the scattering angle weighted backscattering coefficient from phase function
+
+
+
+
 v0.1.2
 ******
 
