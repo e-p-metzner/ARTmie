@@ -1,0 +1,33 @@
+#ifndef ARTMIE_CONSTANTS_H
+#define ARTMIE_CONSTANTS_H
+
+#define PY_SSIZE_T_CLEAN
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+
+#include <complex>
+#include <cmath>
+#include <limits>
+
+/* MATH CONSTANTS */
+static const double _PI_  = 3.1415926535897932384626433832795028842;
+static const double HPI   = 1.5707963267948966192313216916397514421; //0.5*PI
+static const double FPI   = 1.8976999933151773814443651057790870501; //(128/PI²)^0.25
+static const double SPI   = 1.9098593171027440292266051604701723444; //6/PI
+static const double THPI  = 4.7123889803846898576939650749192543263; //1.5*PI
+static const double RTPI  = 0.1591549430918953357688837633725143620; //0.5/PI
+static const double RTHPI = 1.2533141373155002512078826424055226265; //sqrt(0.5*PI)
+static const double LN2PI = 1.8378770664093454835606594728112352797; //log(2*PI)
+static const double LN10  = 2.3025850929940456840179914546843642076; //log(10.0)
+static const double AIC   = 1.2655121234846453964889457971347059239; //log(sqrt(4*PI))
+static const double RT2   = 1.4142135623730950488016887242096980786; //sqrt(2)
+static const double DRT   = 0.7071067811865475244008443621048490393; //sqrt(0.5)
+static const double RT3   = 1.7320508075688772935274463415058723669; //sqrt(3)
+static const double AI0   = 0.3550280538878172392600631860041831764; // 1.0/(3^(2/3) * gamma(2/3))
+static const double AIP0  = 0.2588194037928067984051835601892039635; // 1.0/(3^(1/3) * gamma(1/3))
+
+static const std::complex<double> cplxJ(0.0,1.0);
+
+/* FUNCTIONAL CONSTANTS */
+static const double EPS = 0.5e-8;
+
+#endif /* ARTMIE_CONSTANTS_H */

@@ -4,7 +4,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/ARTmie/badge/?version=latest)](https://artmie.readthedocs.io/en/latest/)
 &emsp; &emsp;
-<!--
+<!-- JOSS publication is onhold until missing sections are written
 [![status](https://joss.theoj.org/papers/4b57e7822ef42dd545bb2d40776b787a/status.svg)](https://joss.theoj.org/papers/4b57e7822ef42dd545bb2d40776b787a)
 -->
 

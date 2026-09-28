@@ -1,3 +1,7 @@
-/.vs/
+/.vs*/
 /build/
 /.project
+
+**eclipse*
+**pycache*
+**egg-info*

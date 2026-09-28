@@ -9,14 +9,26 @@ if __name__ == "__main__":
     np_inc = np.get_include()
     setup(
         name="ARTmie",
-        version="0.1.3",
+        version="0.1.4",
         description="Fast Mie calculation library with C++ backend",
         authors=["Enrico P. Metzner"],
         ext_modules=[
             Extension(
                 'ARTmie',
-                sources=['src/ARTmie.cpp'],
-                include_dirs=[np_inc,cwd+'/src','/home/runner/work/ARTmie/ARTmie/src']
+                sources=[
+                    'src/ARTmie_helper.cpp',
+                    'src/ARTmie_amos.cpp',
+                    'src/ARTmie_math.cpp',
+                    'src/ARTmie_coeff.cpp',
+                    'src/ARTmie_single.cpp',
+                    'src/ARTmie_phase.cpp',
+                    'src/ARTmie_sdo.cpp',
+                    'src/ARTmie.cpp'],
+                include_dirs=[
+                    np_inc,
+                    cwd+'/src',
+                    '/home/runner/work/ARTmie/ARTmie/src'
+                ]
             ),
         ]
     )

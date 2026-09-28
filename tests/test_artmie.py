@@ -108,8 +108,8 @@ def test_backscattering():
     pin,taun = ARTmie.Mie_pitau(theta, nmax)
     sl,sr,su = ARTmie.ScatteringFunction(m, d, wl, theta)
     # get first variant of scatt.angle weighted backscattering coefficient
-    bscAB = ARTmie.calcBackscattering(x, an, bn, theta, dtheta, scatwgts, pin, taun)
+    bscAB = ARTmie.calcVolBackscattering(x, an, bn, theta, dtheta, scatwgts, pin, taun)
     # get second variant of scatt.angle weighted backscattering coefficient from phase function
-    bscPF = ARTmie.calcBackscatteringFromPhFunc(x, theta, su)
+    bscPF = ARTmie.calcVolBackscatteringFromPhFunc(x, theta, su)
     # compare the two variants
     assert np.abs(bscAB-bscPF)<1.0e-8
